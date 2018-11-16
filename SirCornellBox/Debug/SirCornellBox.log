@@ -1,0 +1,8 @@
+﻿  Camera.cpp
+h:\tncg15\onelasttime\sircornellbox\sircornellbox\camera.cpp(31): warning C4244: 'argument': conversion from 'float' to 'unsigned char', possible loss of data
+h:\tncg15\onelasttime\sircornellbox\sircornellbox\camera.cpp(32): warning C4244: 'argument': conversion from 'float' to 'unsigned char', possible loss of data
+h:\tncg15\onelasttime\sircornellbox\sircornellbox\camera.cpp(33): warning C4244: 'argument': conversion from 'float' to 'unsigned char', possible loss of data
+h:\tncg15\onelasttime\sircornellbox\sircornellbox\camera.cpp(47): warning C4101: 'intersectionPt': unreferenced local variable
+h:\tncg15\onelasttime\sircornellbox\sircornellbox\camera.cpp(46): warning C4101: 'distIntersection': unreferenced local variable
+  SirCornellBox.vcxproj -> H:\TNCG15\OneLastTime\SirCornellBox\Debug\SirCornellBox.exe
+  SirCornellBox.vcxproj -> H:\TNCG15\OneLastTime\SirCornellBox\Debug\SirCornellBox.pdb (Partial PDB)
