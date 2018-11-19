@@ -71,7 +71,7 @@ void Camera::render(){
 			
 			// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity
 			// Loop through all of the lights in the scene
-			// If light shines upon thee, take light into your heart and become a part of the light!
+			// If light shines upon thee, take light into your heart and become one with the light!
 			if (scene->getLights().back().lightIntersection(&ray, &intersectionPt, scene->triangles)) {
 				// Color from ray and intensity from light
 				// Add intensity to ray and then multiply color in triangle with color in ray
@@ -81,11 +81,20 @@ void Camera::render(){
 				
 				// Check if distance to wall is greater than distance to light source
 				if (distIntersection > distLightIntersection) {
-					color = closestTriangle.triangle.getColor() * scene->getLights().back().getEmission() * (1/distLightIntersection);
+					color = closestTriangle.triangle.getColor() * scene->getLights().back().getEmission();// *(1 / distLightIntersection);
 					counterLight++;
+				}
+				else {
+					// Fix so that the pixels that are in shadow accually are in shadow!
+					// If an objects is in the way between the walls and the light then that pixel is in shadow. 
+					color = ColorDbl(0.0, 0.0, 0.0);
 				}
 				//std::cout << "Hi my bud light!" << std::endl;
 			}
+			else {
+				color = ColorDbl(0.0, 0.0, 0.0);
+			}
+
 			//color = closestTriangle.triangle.getColor();
 			//std::cout << "Color: " << color << ", Triangle: " << closestTriangle.triangle.getName() << std::endl;
 			pixels.push_back(Pixel(color, &ray));

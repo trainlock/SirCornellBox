@@ -1,8 +1,10 @@
 #pragma once
+
 #include <vector>
 #include <iostream>
 #include "Triangle.h"
 #include "Light.h"
+#include "Tetrahedron.h"
 
 struct TriangleIntersection {
 	Triangle triangle;
@@ -20,10 +22,12 @@ public:
 
 	std::vector<Triangle> triangles;
 private:
+	std::vector<Triangle> roomTriangles;
 	std::vector<glm::vec3> vertices;
 	std::vector<Light> lights;
 	void initLights();
 	void initVertices();
 	void initTriangles();
+	void initObjects();
 };
 

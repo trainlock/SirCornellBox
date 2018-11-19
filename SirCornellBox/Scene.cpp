@@ -4,13 +4,14 @@ Scene::Scene(){
 	initLights();
 	initVertices();
 	initTriangles();
+	initObjects();
 }
 
 Scene::~Scene(){}
 
 void Scene::initLights() {
 	// Assume white light
-	lights.push_back(Light(glm::vec3(-2, -1, 4), 255.00f));
+	lights.push_back(Light(glm::vec3(1, 0, -2), 255.00f));
 }
 
 void Scene::initVertices(){
@@ -33,10 +34,10 @@ void Scene::initVertices(){
 	vertices.push_back(glm::vec3(5.0f, 0.0f, -5.0f)); // Middle point
 }
 
-void Scene::initTriangles(){
+void Scene::initTriangles() {
 	// KOLLA INTE HÄR; DET ÄR RÄTT (LOVAR OCH SVÄR PÅ DEN EVIGA MÅNEN)
 	// Colors
-	ColorDbl roofColor	= ColorDbl(0.4, 0.4, 0.4); // Grey
+	ColorDbl roofColor = ColorDbl(0.4, 0.4, 0.4); // Grey
 	//ColorDbl roofColor	= ColorDbl(0.0, 0.0, 0.0); // Black
 	ColorDbl floorColor = ColorDbl(1.0, 1.0, 1.0); // white
 	ColorDbl wallColor1 = ColorDbl(1.0, 0.0, 1.0); // Magenta
@@ -88,45 +89,58 @@ void Scene::initTriangles(){
 
 	// Set triangles
 	// Roof
-	triangles.push_back(t1);
-	triangles.push_back(t2);
-	triangles.push_back(t3);
-	triangles.push_back(t4);
-	triangles.push_back(t5);
-	triangles.push_back(t6);
+	roomTriangles.push_back(t1);
+	roomTriangles.push_back(t2);
+	roomTriangles.push_back(t3);
+	roomTriangles.push_back(t4);
+	roomTriangles.push_back(t5);
+	roomTriangles.push_back(t6);
 
 	// Floor
-	triangles.push_back(t7);
-	triangles.push_back(t8);
-	triangles.push_back(t9);
-	triangles.push_back(t10);
-	triangles.push_back(t11);
-	triangles.push_back(t12);
+	roomTriangles.push_back(t7);
+	roomTriangles.push_back(t8);
+	roomTriangles.push_back(t9);
+	roomTriangles.push_back(t10);
+	roomTriangles.push_back(t11);
+	roomTriangles.push_back(t12);
 
 	// Wall 1
-	triangles.push_back(t13);
-	triangles.push_back(t14);
+	roomTriangles.push_back(t13);
+	roomTriangles.push_back(t14);
 
 	// Wall 2
-	triangles.push_back(t15);
-	triangles.push_back(t16);
+	roomTriangles.push_back(t15);
+	roomTriangles.push_back(t16);
 
 	// Wall 3
-	triangles.push_back(t17);
-	triangles.push_back(t18);
+	roomTriangles.push_back(t17);
+	roomTriangles.push_back(t18);
 
 	// Wall 4
-	triangles.push_back(t19);
-	triangles.push_back(t20);
+	roomTriangles.push_back(t19);
+	roomTriangles.push_back(t20);
 
 	// Wall 5
-	triangles.push_back(t21);
-	triangles.push_back(t22);
+	roomTriangles.push_back(t21);
+	roomTriangles.push_back(t22);
 
 	// Wall 6
-	triangles.push_back(t23);
-	triangles.push_back(t24);
+	roomTriangles.push_back(t23);
+	roomTriangles.push_back(t24);
+
+	// Add all triangles to triangles
+	triangles.insert(triangles.end(), roomTriangles.begin(), roomTriangles.end());
 }
+
+
+void Scene::initObjects() {
+	// Create tetrahedron
+	ColorDbl color = ColorDbl(0.0, 1.0, 0.0);
+	Tetrahedron tetra = Tetrahedron(glm::vec3(1, 0, 0), color);
+	std::vector<Triangle> tetraTriangles = tetra.getTriangles();
+	triangles.insert(triangles.end(), tetraTriangles.begin(), tetraTriangles.end());
+}
+
 
 TriangleIntersection Scene::detectTriangle(Ray *ray){
 	// Detect intersecting triangles with ray and store in a triangle intersection
@@ -153,6 +167,8 @@ TriangleIntersection Scene::detectTriangle(Ray *ray){
 	//std::cout << "closestTriangle: " << std::endl << closestTriangle.triangle << std::endl;
 	return closestTriangle;
 }
+
+// Scene::detectTetrahedron()
 
 std::vector<Light> Scene::getLights(){
 	return lights;
