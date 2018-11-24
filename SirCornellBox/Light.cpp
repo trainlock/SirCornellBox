@@ -25,7 +25,7 @@ glm::vec3 Light::getPos(){
 bool Light::lightIntersection(Ray *ray, glm::vec3 *_p, std::vector<Triangle> _triangles){
 	float distance = 100000000.0f;
 	bool isFound = false;
-	glm::vec3 tmpPt;
+	glm::vec3 tmpPt = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	// Check if light intersects with point
 	for (auto &triangle : _triangles) {

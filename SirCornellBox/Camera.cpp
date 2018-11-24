@@ -28,8 +28,7 @@ void Camera::createImage() {
 
 void Camera::truncatePixels() {
 	float colorMult = 255.99f;
-	float imax = 0.0f;
-	double r, g, b;
+	double r, g, b, imax = 0.0;
 	for (auto px : pixels) {
 		if (px.getColor().r > imax) {
 			imax = px.getColor().r;
@@ -52,9 +51,9 @@ void Camera::truncatePixels() {
 void Camera::pixelsToPicture() {
 	float alpha = 255.99f;
 	for (auto px : pixels) {
-		pxToPic.push_back((char)(int)px.getColor().r*100.0f);
-		pxToPic.push_back((char)(int)px.getColor().g*100.0f);
-		pxToPic.push_back((char)(int)px.getColor().b*100.0f);
+		pxToPic.push_back((char)(int)px.getColor().r);
+		pxToPic.push_back((char)(int)px.getColor().g);
+		pxToPic.push_back((char)(int)px.getColor().b);
 		pxToPic.push_back((char)alpha);
 	}
 }
@@ -71,11 +70,12 @@ void Camera::render(){
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			ray.setStartPt(eye);
-			ray.setDirRay(glm::vec3(0.0f, ((1.0f - middle) - (float)(j)*delta), ((1.0f - middle) - (float)(i)*delta)));
-			
-			color = castRay(&ray, 0, color);
 
-			pixels.push_back(Pixel(color*colorMult, &ray));
+			// Divide into subpixel for reflections
+			ray.setDirRay(glm::vec3(0.0f, ((1.0f - middle) - (float)(j)*delta), ((1.0f - middle) - (float)(i)*delta)));
+			color = castRay(&ray, 0, color)*colorMult;
+
+			pixels.push_back(Pixel(color, &ray));
 		}
 	}
 }
@@ -89,7 +89,7 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 
 	// Find direction between start point and light point
 	glm::vec3 direction = scene->getLights().back().getPos() - closestTriangle.point;
-	distLightIntersection = glm::length(direction);
+	distLightIntersection = glm::distance(scene->getLights().back().getPos(), closestTriangle.point);
 
 	// Make the found vector tiny to be able to search areas close by
 	direction = glm::normalize(direction)*EPSILON;
@@ -102,13 +102,13 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	// If light shines upon thee, take light into your heart and become one with the light!
 	if (scene->getLights().back().lightIntersection(ray, &intersectionPt, scene->triangles)) {
 		// Color from ray and intensity from light
-		// Add intensity to ray and then multiply color in triangle with color in ray
 
 		// Distance to intersecting wall
 		distIntersection = glm::distance(intersectionPt, ray->getStartPt());
 
 		// Check if distance to wall is greater than distance to light source
 		if (distIntersection > distLightIntersection) {
+		// Add intensity to ray and then multiply color in triangle with color in ray
 			color = closestTriangle.triangle.getColor() * scene->getLights().back().getEmission() * (1 / distLightIntersection);
 		}
 		else {
