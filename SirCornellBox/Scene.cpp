@@ -10,8 +10,8 @@ Scene::Scene(){
 Scene::~Scene(){}
 
 void Scene::initLights() {
-	// Assume white light
-	lights.push_back(Light(glm::vec3(1, 0, -2), 255.00f));
+	// Assume white light!
+	lights.push_back(Light(glm::vec3(1, 2, 2.5), 255.00f));
 }
 
 void Scene::initVertices(){

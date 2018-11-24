@@ -16,8 +16,10 @@ public:
 	~Camera();
 
 	void createImage();
+	void truncatePixels();
 	void pixelsToPicture();
 	void render();
+	ColorDbl castRay(Ray *ray, int depht, ColorDbl color);
 private:
 	// Position of eye
 	glm::vec3 eye;

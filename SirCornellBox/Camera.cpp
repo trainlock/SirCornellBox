@@ -11,6 +11,7 @@ Camera::Camera(Scene *_scn, glm::vec3 _eye){
 Camera::~Camera(){}
 
 void Camera::createImage() {
+	truncatePixels();
 	pixelsToPicture();
 
 	std::cout << "Lets be creative!" << std::endl;
@@ -23,6 +24,29 @@ void Camera::createImage() {
 	if (error) std::cout << "enocoder error " << error << ":" << lodepng_error_text(error) << std::endl;
 
 	std::cout << "My work here is done" << std::endl;
+}
+
+void Camera::truncatePixels() {
+	float colorMult = 255.99f;
+	float imax = 0.0f;
+	double r, g, b;
+	for (auto px : pixels) {
+		if (px.getColor().r > imax) {
+			imax = px.getColor().r;
+		}
+		if (px.getColor().g > imax) {
+			imax = px.getColor().g;
+		}
+		if (px.getColor().b > imax) {
+			imax = px.getColor().b;
+		}
+	}
+	for (auto px : pixels) {
+		r = trunc(px.getColor().r * (colorMult / imax));
+		g = trunc(px.getColor().g * (colorMult / imax));
+		b = trunc(px.getColor().b * (colorMult / imax));
+		px.setColor(r, g, b);
+	}
 }
 
 void Camera::pixelsToPicture() {
@@ -40,65 +64,61 @@ void Camera::render(){
 	Ray ray(eye);
 	float delta = 2.0f / width;
 	float middle = delta / 2.0f;
+
+	ColorDbl color = ColorDbl(1.0, 1.0, 1.0);
 	float colorMult = 255.99f;
-	const float EPSILON = 0.000001f;
-	int counterLight = 0;
-	float distIntersection, distLightIntersection;
-	glm::vec3 intersectionPt;
-	ColorDbl color;
 
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			ray.setStartPt(eye);
 			ray.setDirRay(glm::vec3(0.0f, ((1.0f - middle) - (float)(j)*delta), ((1.0f - middle) - (float)(i)*delta)));
-			TriangleIntersection closestTriangle = scene->detectTriangle(&ray);
-
-			// TODO: Add light to triangle
-			// Light point: scene->getLights().back().pos
-			// Start point at triangle: closestTriangle.point
-			// Traverse from start to light point
-			// If something blocks then that point is not directly illuminated
-
-			// Find direction between start point and light point
-			glm::vec3 direction = scene->getLights().back().getPos() - closestTriangle.point;
-			distLightIntersection = glm::length(direction);
-
-			// Make the found vector tiny to be able to search areas close by
-			direction = glm::normalize(direction)*EPSILON;
-
-			ray.setStartPt(closestTriangle.point);
-			ray.setDirRay(direction);
 			
-			// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity
-			// Loop through all of the lights in the scene
-			// If light shines upon thee, take light into your heart and become one with the light!
-			if (scene->getLights().back().lightIntersection(&ray, &intersectionPt, scene->triangles)) {
-				// Color from ray and intensity from light
-				// Add intensity to ray and then multiply color in triangle with color in ray
-				
-				// Distance to intersecting wall
-				distIntersection = glm::distance(intersectionPt, ray.getStartPt());
-				
-				// Check if distance to wall is greater than distance to light source
-				if (distIntersection > distLightIntersection) {
-					color = closestTriangle.triangle.getColor() * scene->getLights().back().getEmission();// *(1 / distLightIntersection);
-					counterLight++;
-				}
-				else {
-					// Fix so that the pixels that are in shadow accually are in shadow!
-					// If an objects is in the way between the walls and the light then that pixel is in shadow. 
-					color = ColorDbl(0.0, 0.0, 0.0);
-				}
-				//std::cout << "Hi my bud light!" << std::endl;
-			}
-			else {
-				color = ColorDbl(0.0, 0.0, 0.0);
-			}
+			color = castRay(&ray, 0, color);
 
-			//color = closestTriangle.triangle.getColor();
-			//std::cout << "Color: " << color << ", Triangle: " << closestTriangle.triangle.getName() << std::endl;
-			pixels.push_back(Pixel(color, &ray));
+			pixels.push_back(Pixel(color*colorMult, &ray));
 		}
 	}
-	std::cout << "Light: " << counterLight << std::endl;
+}
+
+ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
+	const float EPSILON = 0.000001f;
+	float distIntersection = 0.0f, distLightIntersection = 0.0f;
+	glm::vec3 intersectionPt = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	TriangleIntersection closestTriangle = scene->detectTriangle(ray);
+
+	// Find direction between start point and light point
+	glm::vec3 direction = scene->getLights().back().getPos() - closestTriangle.point;
+	distLightIntersection = glm::length(direction);
+
+	// Make the found vector tiny to be able to search areas close by
+	direction = glm::normalize(direction)*EPSILON;
+
+	ray->setStartPt(closestTriangle.point);
+	ray->setDirRay(direction);
+
+	// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity
+	// Loop through all of the lights in the scene
+	// If light shines upon thee, take light into your heart and become one with the light!
+	if (scene->getLights().back().lightIntersection(ray, &intersectionPt, scene->triangles)) {
+		// Color from ray and intensity from light
+		// Add intensity to ray and then multiply color in triangle with color in ray
+
+		// Distance to intersecting wall
+		distIntersection = glm::distance(intersectionPt, ray->getStartPt());
+
+		// Check if distance to wall is greater than distance to light source
+		if (distIntersection > distLightIntersection) {
+			color = closestTriangle.triangle.getColor() * scene->getLights().back().getEmission() * (1 / distLightIntersection);
+		}
+		else {
+			// Fix so that the pixels that are in shadow accually are in shadow!
+			// If an objects is in the way between the walls and the light then that pixel is in shadow. 
+			color = ColorDbl(0.0, 0.0, 0.0);
+		}
+	}
+	else {
+		color = ColorDbl(0.0, 0.0, 0.0);
+	}
+	return color;
 }

@@ -9,6 +9,11 @@ Pixel::Pixel(ColorDbl _color, Ray * _ray){
 
 Pixel::~Pixel(){}
 
+
+void Pixel::setColor(double r, double g, double b) {
+	color = ColorDbl(r, g, b);
+}
+
 ColorDbl Pixel::getColor() {
 	return color;
 }

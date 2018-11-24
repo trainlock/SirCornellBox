@@ -8,8 +8,11 @@ public:
 	ColorDbl(double _r, double _g, double _b);
 	~ColorDbl();
 
+	// Operators
 	ColorDbl operator*(const float f);
 	ColorDbl operator*(const ColorDbl c);
+	ColorDbl operator+(const ColorDbl c);
+	ColorDbl operator+=(const ColorDbl c);
 	friend std::ostream& operator<<(std::ostream& os, const ColorDbl& c);
 
 	void setColor(ColorDbl _color);
