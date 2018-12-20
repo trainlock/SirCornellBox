@@ -1,6 +1,8 @@
 #include "Light.h"
 
-Light::Light(){}
+Light::Light(){
+	// Can add light as a square or circle in the roof or at another place.
+}
 
 Light::Light(glm::vec3 _pos, float _intensity){
 	pos = _pos;
@@ -11,7 +13,7 @@ Light::~Light(){}
 
 ColorDbl Light::getEmission(){
 	// Assume white light, to begin with
-	return ColorDbl(0.8, 0.8, 1.0)*intensity;
+	return ColorDbl(1.0, 1.0, 1.0)*intensity;
 }
 
 float Light::getIntensity() {

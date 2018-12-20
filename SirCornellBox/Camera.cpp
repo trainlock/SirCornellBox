@@ -77,6 +77,8 @@ void Camera::render(){
 
 			pixels.push_back(Pixel(color, &ray));
 		}
+		//system("cls");
+		//std::cout << (double)i / height*100.0 << "%" << std::endl;
 	}
 }
 
@@ -84,15 +86,15 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	const float EPSILON = 0.000001f;
 	float distIntersection = 0.0f, distLightIntersection = 0.0f;
 	glm::vec3 intersectionPt = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 lightPt = scene->getLights().back().getPos();
 
 	TriangleIntersection closestTriangle = scene->detectTriangle(ray);
 
 	// Find direction between start point and light point
 	glm::vec3 direction = scene->getLights().back().getPos() - closestTriangle.point;
-	distLightIntersection = glm::distance(scene->getLights().back().getPos(), closestTriangle.point);
 
 	// Make the found vector tiny to be able to search areas close by
-	direction = glm::normalize(direction)*EPSILON;
+	direction = glm::normalize(direction);// *EPSILON;
 
 	ray->setStartPt(closestTriangle.point);
 	ray->setDirRay(direction);
@@ -102,23 +104,33 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	// If light shines upon thee, take light into your heart and become one with the light!
 	if (scene->getLights().back().lightIntersection(ray, &intersectionPt, scene->triangles)) {
 		// Color from ray and intensity from light
+		distLightIntersection = glm::distance(lightPt, closestTriangle.point); 
+		
+		//std::cout << "triangle = " << closestTriangle.triangle.getName() << std::endl;
+		//std::cout << "lightPt = (" << lightPt.x << ", " << lightPt.y << ", " << lightPt.z << ")" << std::endl;
+		//std::cout << "closestT.pt = (" << closestTriangle.point.x << ", " << closestTriangle.point.y << ", " << closestTriangle.point.z << ")" << std::endl;
+		//std::cout << "distLightIntersection = " << distLightIntersection << std::endl << std::endl;
+
 
 		// Distance to intersecting wall
 		distIntersection = glm::distance(intersectionPt, ray->getStartPt());
 
 		// Check if distance to wall is greater than distance to light source
-		if (distIntersection > distLightIntersection) {
-		// Add intensity to ray and then multiply color in triangle with color in ray
-			color = closestTriangle.triangle.getColor() * scene->getLights().back().getEmission() * (1 / distLightIntersection);
-		}
-		else {
+		if (distIntersection > distLightIntersection || distIntersection < 0.001) {
+			//std::cout << "triangle = " << closestTriangle.triangle.getName() << std::endl;
+			//std::cout << "distLightIntersection = " << distLightIntersection << std::endl;
+
+			// Add intensity to ray and then multiply color in triangle with color in ray
+			color = (closestTriangle.triangle.getColor() * scene->getLights().back().getEmission());// * (1 / distLightIntersection);
+		}else {
 			// Fix so that the pixels that are in shadow accually are in shadow!
 			// If an objects is in the way between the walls and the light then that pixel is in shadow. 
-			color = ColorDbl(0.0, 0.0, 0.0);
+			color = ColorDbl(0.0, 0.0, 1.0);
 		}
 	}
 	else {
-		color = ColorDbl(0.0, 0.0, 0.0);
+		std::cout << "in shadow" << std::endl;
+		color = ColorDbl(0.0, 1.0, 0.0);
 	}
 	return color;
 }

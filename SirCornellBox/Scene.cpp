@@ -80,7 +80,7 @@ void Scene::initTriangles() {
 	Triangle t20(vertices.at(3), vertices.at(10), vertices.at(11), wallColor4, "t20");
 
 	// Triangles Wall 5
-	Triangle t21(vertices.at(4), vertices.at(12), vertices.at(5), wallColor4, "t21");
+	Triangle t21(vertices.at(4), vertices.at(12), vertices.at(5), wallColor5, "t21");
 	Triangle t22(vertices.at(4), vertices.at(11), vertices.at(12), wallColor5, "t22");
 
 	// Triangles Wall 6
