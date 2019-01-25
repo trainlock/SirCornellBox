@@ -28,21 +28,21 @@ bool Light::lightIntersection(Ray *ray, glm::vec3 *_p, std::vector<Triangle> _tr
 	float distance = 100000000.0f;
 	bool isFound = false;
 	glm::vec3 tmpPt = glm::vec3(0.0f, 0.0f, 0.0f);
-
 	// Check if light intersects with point
 	for (auto &triangle : _triangles) {
 		// Check if the ray intersects the triangle
 		// If so, add the triangle to the returning vector
 		if (triangle.rayIntersection(ray, &tmpPt)) {
+			//std::cout << "triangle" << triangle.getName() << " pt = (" << tmpPt.x << ", " << tmpPt.y << ", " << tmpPt.z << ")" << std::endl;
 			// Check which intersection that is the closest
-			float distTriangle = glm::distance(ray->getStartPt(), tmpPt);
-			if (distTriangle < distance && distTriangle > 0.0f) {
-				distance = distTriangle;
+			//float distTriangle = glm::distance(ray->getStartPt(), tmpPt);
+			//if (distTriangle < distance && distTriangle > 0.0f) {
+				//distance = distTriangle;
 				_p->x = tmpPt.x;
 				_p->y = tmpPt.y;
 				_p->z = tmpPt.z;
 				isFound = true;
-			}
+			//}
 		}
 	}
 	return isFound;

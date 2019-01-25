@@ -141,6 +141,9 @@ void Scene::initObjects() {
 	triangles.insert(triangles.end(), tetraTriangles.begin(), tetraTriangles.end());
 }
 
+std::vector<Light> Scene::getLights() {
+	return lights;
+}
 
 TriangleIntersection Scene::detectTriangle(Ray *ray){
 	// Detect intersecting triangles with ray and store in a triangle intersection
@@ -151,6 +154,7 @@ TriangleIntersection Scene::detectTriangle(Ray *ray){
 	glm::vec3 tmpPt;
 
 	for (auto &triangle : triangles) {
+		tmpPt = glm::vec3(0.0f);
 		// Check if ray intersects triangle
 		if (triangle.rayIntersection(ray, &tmpPt)) {
 			tmpIntersection.triangle = triangle;
@@ -159,6 +163,7 @@ TriangleIntersection Scene::detectTriangle(Ray *ray){
 			// Check if triangle is the closest on to origin of ray
 			float distTriangle = glm::distance(ray->getStartPt(), tmpIntersection.point);
 			if (distTriangle < distance && distTriangle > 0.0f) {
+				//std::cout << "Distance to triangle" << triangle.getName() << " = " << distance << std::endl;
 				distance = distTriangle;
 				closestTriangle = tmpIntersection;
 			}
@@ -170,6 +175,5 @@ TriangleIntersection Scene::detectTriangle(Ray *ray){
 
 // Scene::detectTetrahedron()
 
-std::vector<Light> Scene::getLights(){
-	return lights;
-}
+Scene::SphereIntersection
+
