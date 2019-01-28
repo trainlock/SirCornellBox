@@ -139,6 +139,11 @@ void Scene::initObjects() {
 	Tetrahedron tetra = Tetrahedron(glm::vec3(1, 0, 0), color);
 	std::vector<Triangle> tetraTriangles = tetra.getTriangles();
 	triangles.insert(triangles.end(), tetraTriangles.begin(), tetraTriangles.end());
+
+	// Create sphere
+	color = ColorDbl(1.0, 0.0, 0.0);
+	Sphere sphere = Sphere(glm::vec3(2, -3, 2), 0.5f);
+	spheres.push_back(sphere);
 }
 
 std::vector<Light> Scene::getLights() {
@@ -147,8 +152,8 @@ std::vector<Light> Scene::getLights() {
 
 TriangleIntersection Scene::detectTriangle(Ray *ray){
 	// Detect intersecting triangles with ray and store in a triangle intersection
-	std::vector<TriangleIntersection> intersections;
 	float distance = 10000000.0f;
+
 	TriangleIntersection closestTriangle;
 	TriangleIntersection tmpIntersection;
 	glm::vec3 tmpPt;
@@ -173,7 +178,37 @@ TriangleIntersection Scene::detectTriangle(Ray *ray){
 	return closestTriangle;
 }
 
-// Scene::detectTetrahedron()
+SphereIntersection Scene::detectSphere(Ray *ray) {
+	// Detect intersection between the sphere and ray and save it in a sphere intersection
+	float EPSILON = 0.0001f;
+	float distCenter = 0.0f;
+	float distance = 10000.0f;
 
-Scene::SphereIntersection
+	SphereIntersection closestSphere;
+	SphereIntersection tmpSphere;
+	glm::vec3 tmpPt;
+
+	// Initialise closest sphere with nonsense
+	closestSphere.distToRay = 10000.0f;
+
+	for (auto &sphere : spheres) {
+		// Get point of intersection forthe ray (might not hit the sphere)
+		tmpPt = sphere.calculateSurfacePt(ray->getStartPt(), ray->getDirRay());
+		distCenter = glm::distance(sphere.getCenterPt(), tmpPt);
+
+		// Check if intersection point is on the surface of the sphere
+		if (distCenter > (sphere.getRadius() - EPSILON) && distCenter < (sphere.getRadius() + EPSILON)) {
+			tmpSphere.sphere = sphere;
+			tmpSphere.surfacePt = tmpPt;
+			tmpSphere.distToRay = glm::distance(tmpPt, ray->getStartPt());
+
+			// Check if the current surface point is the one closest to the ray starting point
+			if (tmpSphere.distToRay < distance) {
+				distance = tmpSphere.distToRay;
+				closestSphere = tmpSphere;
+			}
+		}
+	}
+	return closestSphere;
+}
 

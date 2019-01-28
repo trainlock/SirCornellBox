@@ -40,14 +40,14 @@ bool Triangle::rayIntersection(Ray *ray, glm::vec3 *_v){
 	// Write code for intersection here
 	const float EPSILON = 0.000000000001f;
 	glm::vec3 rayStart = ray->getStartPt(); // Ps
-	glm::vec3 rayDir = ray->getDirRay(); // Pe
+	glm::vec3 rayDir = ray->getDirRay();	// Pe
 	glm::vec3 edge1, edge2, edgeNormal, T, D, Q;
 	float a, f, u, v, t;
 
 	// Möller Trumbore Alhorithm
-	T = rayStart - v0; // T
-	edge1 = v1 - v0; // E1
-	edge2 = v2 - v0; // E2
+	T = rayStart - v0;	// T
+	edge1 = v1 - v0;	// E1
+	edge2 = v2 - v0;	// E2
 	D = rayDir - rayStart;
 	edgeNormal = glm::cross(D, edge2); // P
 	a = glm::dot(edgeNormal, edge1);

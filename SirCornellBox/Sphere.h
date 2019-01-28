@@ -12,6 +12,9 @@ public:
 
 	glm::vec3 calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir);
 
+	glm::vec3 getCenterPt();
+	float getRadius();
+
 private:
 	glm::vec3 centerPos;
 	float radius;

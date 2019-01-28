@@ -30,3 +30,11 @@ glm::vec3 Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir){
 	// Return surface point
 	return surfacePt;
 }
+
+glm::vec3 Sphere::getCenterPt(){
+	return centerPos;
+}
+
+float Sphere::getRadius(){
+	return radius;
+}
