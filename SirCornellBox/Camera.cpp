@@ -86,7 +86,7 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	const float EPSILON = 0.1f;
 	float distIntersection = 0.0f;
 	float distLightIntersection = 0.0f;
-
+	bool isTriangleClosest = true;
 	float lengthToSphere;
 	float lengthToTriangle;
 
@@ -98,11 +98,15 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	SphereIntersection closestSphere = scene->detectSphere(ray);
 
 	lengthToSphere = closestSphere.distToRay;
-	lengthToSphere = glm::distance(closestTriangle.point, ray->getStartPt());
+	lengthToTriangle = glm::distance(closestTriangle.point, ray->getStartPt());
 
 	// Check if the ray hits a sphere or a triangle
-	if (lengthToSphere < lengthToTriangle) {
+	if (lengthToSphere < lengthToTriangle ) {
 		closestPt = closestSphere.surfacePt;
+		isTriangleClosest = false;
+
+		// TODO: Check if the sphere is hit (hint: use sphere.isHit)
+
 	}
 	else {
 		closestPt = closestTriangle.point;
@@ -119,10 +123,6 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	ray->setDirRay(direction);
 
 
-
-
-
-
 	// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity
 	// Loop through all of the lights in the scene
 	// If light shines upon thee, take light into your heart and become one with the light!
@@ -136,7 +136,13 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 		distIntersection = glm::distance(intersectionPt, ray->getStartPt());
 
 
-
+		
+		SphereIntersection closestSphereIntersect = scene->detectSphere(ray);
+		float sphereIntersectionDist = glm::distance(closestSphere.surfacePt, ray->getStartPt());
+		if ( sphereIntersectionDist < distIntersection) {
+			distIntersection = sphereIntersectionDist;
+			
+		}
 		// TODO: Fix light intersection by checking if a sphere is between the wall or not
 		// TODO: Check which is closest
 		// TOOD: Colour point based on the closest point (triangle or sphere?)
@@ -153,7 +159,14 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 
 			// Add intensity to ray and then multiply color in triangle with color in ray
 			Light light = scene->getLights().front();
-			color = (closestTriangle.triangle.getColor() * scene->getLights().back().getEmission());// *(1 / distLightIntersection));
+			if (isTriangleClosest) {
+				color = (closestTriangle.triangle.getColor() * scene->getLights().back().getEmission());// *(1 / distLightIntersection));
+			}
+			else {
+				color = (closestSphere.sphere.getColor() * scene->getLights().back().getEmission());// *(1 / distLightIntersection));
+				std::cout << closestSphere.surfacePt.x << std::endl;
+			}
+			
 		}else {
 			// Fix so that the pixels that are in shadow accually are in shadow!
 			// If an objects is in the way between the walls and the light then that pixel is in shadow. 

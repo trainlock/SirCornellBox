@@ -136,13 +136,13 @@ void Scene::initTriangles() {
 void Scene::initObjects() {
 	// Create tetrahedron
 	ColorDbl color = ColorDbl(0.0, 1.0, 0.0);
-	Tetrahedron tetra = Tetrahedron(glm::vec3(1, 0, 0), color);
+	Tetrahedron tetra = Tetrahedron(glm::vec3(3, 0, 0), color);
 	std::vector<Triangle> tetraTriangles = tetra.getTriangles();
 	triangles.insert(triangles.end(), tetraTriangles.begin(), tetraTriangles.end());
 
 	// Create sphere
-	color = ColorDbl(1.0, 0.0, 0.0);
-	Sphere sphere = Sphere(glm::vec3(2, -3, 2), 0.5f);
+	color = ColorDbl(1.0, 1.0, 0.0);
+	Sphere sphere = Sphere(glm::vec3(2, 0, 0), 0.5f, color);
 	spheres.push_back(sphere);
 }
 
@@ -186,28 +186,36 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 
 	SphereIntersection closestSphere;
 	SphereIntersection tmpSphere;
+	closestSphere.isHit = false;
 	glm::vec3 tmpPt;
 
 	// Initialise closest sphere with nonsense
 	closestSphere.distToRay = 10000.0f;
 
 	for (auto &sphere : spheres) {
-		// Get point of intersection forthe ray (might not hit the sphere)
-		tmpPt = sphere.calculateSurfacePt(ray->getStartPt(), ray->getDirRay());
-		distCenter = glm::distance(sphere.getCenterPt(), tmpPt);
+		// Check if sphere is hit
+		// Get point of intersection for the ray (might not hit the sphere)
+		if (sphere.calculateSurfacePt(ray->getStartPt(), ray->getDirRay(), &tmpPt)) {
+			distCenter = glm::distance(sphere.getCenterPt(), tmpPt);
 
-		// Check if intersection point is on the surface of the sphere
-		if (distCenter > (sphere.getRadius() - EPSILON) && distCenter < (sphere.getRadius() + EPSILON)) {
-			tmpSphere.sphere = sphere;
-			tmpSphere.surfacePt = tmpPt;
-			tmpSphere.distToRay = glm::distance(tmpPt, ray->getStartPt());
 
-			// Check if the current surface point is the one closest to the ray starting point
-			if (tmpSphere.distToRay < distance) {
-				distance = tmpSphere.distToRay;
-				closestSphere = tmpSphere;
+			// TODO: Fix so that the checks are correct with the new alternation (returing bool instead of the point)
+
+			// Check if intersection point is on the surface of the sphere
+			if (distCenter > (sphere.getRadius() - EPSILON) && distCenter < (sphere.getRadius() + EPSILON)) {
+				tmpSphere.sphere = sphere;
+				tmpSphere.surfacePt = tmpPt;
+				tmpSphere.distToRay = glm::distance(tmpPt, ray->getStartPt());
+				tmpSphere.isHit = true;
+
+				// Check if the current surface point is the one closest to the ray starting point
+				if (tmpSphere.distToRay < distance) {
+					distance = tmpSphere.distToRay;
+					closestSphere = tmpSphere;
+				}
 			}
 		}
+		
 	}
 	return closestSphere;
 }

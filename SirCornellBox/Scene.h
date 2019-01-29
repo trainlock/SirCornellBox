@@ -17,6 +17,7 @@ struct SphereIntersection {
 	Sphere sphere;
 	glm::vec3 surfacePt;
 	float distToRay;
+	bool isHit;
 };
 
 class Scene{

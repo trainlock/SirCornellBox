@@ -1,17 +1,18 @@
 #include "Sphere.h"
+#include <algorithm>
 
 Sphere::Sphere(){}
 
-Sphere::Sphere(glm::vec3 _centerPos, float _radius) {
+Sphere::Sphere(glm::vec3 _centerPos, float _radius, ColorDbl _color) {
 	this->centerPos = _centerPos;
 	this->radius = _radius;
+	this->color = _color;
 }
 
 Sphere::~Sphere(){}
 
-glm::vec3 Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir){
-	float b, c, dp, dm;
-	glm::vec3 surfacePt;
+bool Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir, glm::vec3 *surfacePt){
+	float b, c, d;
 
 	// Calculate b
 	b = glm::dot((2.0f * rayDir), (rayPos - this->centerPos));
@@ -19,16 +20,30 @@ glm::vec3 Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir){
 	// Calculate c
 	c = glm::dot((rayPos - this->centerPos), (rayPos - this->centerPos)) - pow(this->radius, 2);
 
-	// Calculate d 
+	
 	// TODO: use dp or dm????
-	dp = -(b / 2.0f) + sqrt(pow((b / 2.0f), 2) - c);
-	dm = -(b / 2.0f) - sqrt(pow((b / 2.0f), 2) - c);
+	// Check if ray hits the sphere
+	if (pow((b / 2.0f), 2) - c > 0.0f) {
+		// Calculate d 
+		d = std::min(-(b / 2.0f) - sqrt(pow((b / 2.0f), 2) - c), -(b / 2.0f) + sqrt(pow((b / 2.0f), 2) - c));
+		
+		// Calculate surface point
+		glm::vec3 pos = (rayPos + d * rayDir);
+		surfacePt->x = pos.x;
+		surfacePt->y = pos.y;
+		surfacePt->z = pos.z;
+		return true;
+	}
+	else {
+		// No hit
+		return false;
+	}
+	return false;
+}
 
-	// Calculate surface point
-	surfacePt = rayPos + dm * rayDir;
-
-	// Return surface point
-	return surfacePt;
+ColorDbl Sphere::getColor()
+{
+	return this->color;
 }
 
 glm::vec3 Sphere::getCenterPt(){
