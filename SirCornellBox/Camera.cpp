@@ -22,7 +22,6 @@ void Camera::createImage() {
 
 	// If there is an error, display it
 	if (error) std::cout << "enocoder error " << error << ":" << lodepng_error_text(error) << std::endl;
-
 	std::cout << "My work here is done" << std::endl;
 }
 
@@ -77,8 +76,6 @@ void Camera::render(){
 
 			pixels.push_back(Pixel(color, &ray));
 		}
-		//system("cls");
-		//std::cout << (double)i / height*100.0 << "%" << std::endl;
 	}
 }
 
@@ -95,21 +92,27 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	glm::vec3 closestPt = glm::vec3(0.0f);
 
 	TriangleIntersection closestTriangle = scene->detectTriangle(ray);
+
+	// TODO: Hits sphere from the light source but not from the eye
+	// TODO: Fix so that the sphere can be hit from the eye or change the if statements to fit light hit
+	std::cout << "CAMERA: Before assignment" << std::endl;
 	SphereIntersection closestSphere = scene->detectSphere(ray);
+	std::cout << "CAMERA: Closest Distance to Ray = " << closestSphere.distToRay << std::endl;
 
 	lengthToSphere = closestSphere.distToRay;
 	lengthToTriangle = glm::distance(closestTriangle.point, ray->getStartPt());
 
 	// Check if the ray hits a sphere or a triangle
-	if (lengthToSphere < lengthToTriangle ) {
+	if (lengthToSphere < lengthToTriangle && closestSphere.isHit) {
 		closestPt = closestSphere.surfacePt;
 		isTriangleClosest = false;
-
+		std::cout << "Closest is a Sphere" << std::endl;
 		// TODO: Check if the sphere is hit (hint: use sphere.isHit)
 
 	}
 	else {
 		closestPt = closestTriangle.point;
+		isTriangleClosest = true;
 	}
 
 	// Find direction between start point and light point
@@ -135,20 +138,19 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 		// Distance to intersecting wall
 		distIntersection = glm::distance(intersectionPt, ray->getStartPt());
 
-
-		
+		// Check if there is a sphere between closest point and the light source
+		std::cout << "CAMERA: BEFORE IF" << std::endl;
 		SphereIntersection closestSphereIntersect = scene->detectSphere(ray);
-		float sphereIntersectionDist = glm::distance(closestSphere.surfacePt, ray->getStartPt());
-		if ( sphereIntersectionDist < distIntersection) {
+		std::cout << "CAMERA: AFTER IF" << std::endl;
+		float sphereIntersectionDist = glm::distance(closestSphereIntersect.surfacePt, ray->getStartPt());
+		if (sphereIntersectionDist < distIntersection && closestSphereIntersect.isHit) {
 			distIntersection = sphereIntersectionDist;
-			
 		}
+
+
 		// TODO: Fix light intersection by checking if a sphere is between the wall or not
 		// TODO: Check which is closest
 		// TOOD: Colour point based on the closest point (triangle or sphere?)
-
-
-
 
 
 
@@ -158,15 +160,15 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 		if (distIntersection > distLightIntersection || distIntersection < EPSILON) {
 
 			// Add intensity to ray and then multiply color in triangle with color in ray
-			Light light = scene->getLights().front();
+			Light light = scene->getLights().back();
 			if (isTriangleClosest) {
-				color = (closestTriangle.triangle.getColor() * scene->getLights().back().getEmission());// *(1 / distLightIntersection));
+				color = (closestTriangle.triangle.getColor() * light.getEmission());// *(1 / distLightIntersection));
 			}
 			else {
-				color = (closestSphere.sphere.getColor() * scene->getLights().back().getEmission());// *(1 / distLightIntersection));
+				color = (closestSphere.sphere.getColor() * light.getEmission());// *(1 / distLightIntersection));
+				std::cout << "color = " << color << std::endl;
 				std::cout << closestSphere.surfacePt.x << std::endl;
 			}
-			
 		}else {
 			// Fix so that the pixels that are in shadow accually are in shadow!
 			// If an objects is in the way between the walls and the light then that pixel is in shadow. 

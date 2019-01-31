@@ -168,13 +168,11 @@ TriangleIntersection Scene::detectTriangle(Ray *ray){
 			// Check if triangle is the closest on to origin of ray
 			float distTriangle = glm::distance(ray->getStartPt(), tmpIntersection.point);
 			if (distTriangle < distance && distTriangle > 0.0f) {
-				//std::cout << "Distance to triangle" << triangle.getName() << " = " << distance << std::endl;
 				distance = distTriangle;
 				closestTriangle = tmpIntersection;
 			}
 		}
 	}
-	//std::cout << "closestTriangle: " << std::endl << closestTriangle.triangle << std::endl;
 	return closestTriangle;
 }
 
@@ -186,7 +184,6 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 
 	SphereIntersection closestSphere;
 	SphereIntersection tmpSphere;
-	closestSphere.isHit = false;
 	glm::vec3 tmpPt;
 
 	// Initialise closest sphere with nonsense
@@ -196,27 +193,30 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 		// Check if sphere is hit
 		// Get point of intersection for the ray (might not hit the sphere)
 		if (sphere.calculateSurfacePt(ray->getStartPt(), ray->getDirRay(), &tmpPt)) {
-			distCenter = glm::distance(sphere.getCenterPt(), tmpPt);
 
-
-			// TODO: Fix so that the checks are correct with the new alternation (returing bool instead of the point)
-
+			//distCenter = glm::distance(sphere.getCenterPt(), tmpPt);
 			// Check if intersection point is on the surface of the sphere
-			if (distCenter > (sphere.getRadius() - EPSILON) && distCenter < (sphere.getRadius() + EPSILON)) {
-				tmpSphere.sphere = sphere;
-				tmpSphere.surfacePt = tmpPt;
-				tmpSphere.distToRay = glm::distance(tmpPt, ray->getStartPt());
-				tmpSphere.isHit = true;
+			//if (distCenter > (sphere.getRadius() - EPSILON) && distCenter < (sphere.getRadius() + EPSILON)) {
+			tmpSphere.sphere = sphere;
+			tmpSphere.surfacePt = tmpPt;
+			tmpSphere.distToRay = glm::distance(tmpPt, ray->getStartPt());
+			tmpSphere.isHit = true;
 
-				// Check if the current surface point is the one closest to the ray starting point
-				if (tmpSphere.distToRay < distance) {
-					distance = tmpSphere.distToRay;
-					closestSphere = tmpSphere;
-				}
+			// Check if the current surface point is the one closest to the ray starting point
+			if (tmpSphere.distToRay < distance) {
+				distance = tmpSphere.distToRay;
+
+				closestSphere.sphere = tmpSphere.sphere;
+				closestSphere.surfacePt = tmpSphere.surfacePt;
+				closestSphere.distToRay = tmpSphere.distToRay;
+				closestSphere.isHit = tmpSphere.isHit;
+
+				std::cout << "CLOSEST SPHERE YAO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 			}
+			//}
 		}
-		
 	}
+	std::cout << "SCENE: Closest Distance to Ray = " << closestSphere.distToRay << std::endl;
 	return closestSphere;
 }
 

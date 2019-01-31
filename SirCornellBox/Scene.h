@@ -17,7 +17,7 @@ struct SphereIntersection {
 	Sphere sphere;
 	glm::vec3 surfacePt;
 	float distToRay;
-	bool isHit;
+	bool isHit = false;
 };
 
 class Scene{
@@ -36,6 +36,7 @@ private:
 	std::vector<Triangle> roomTriangles;
 	std::vector<glm::vec3> vertices;
 	std::vector<Light> lights;
+
 	void initLights();
 	void initVertices();
 	void initTriangles();
