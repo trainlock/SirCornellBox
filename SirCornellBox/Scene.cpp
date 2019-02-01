@@ -132,17 +132,16 @@ void Scene::initTriangles() {
 	triangles.insert(triangles.end(), roomTriangles.begin(), roomTriangles.end());
 }
 
-
 void Scene::initObjects() {
 	// Create tetrahedron
 	ColorDbl color = ColorDbl(0.0, 1.0, 0.0);
-	Tetrahedron tetra = Tetrahedron(glm::vec3(3, 0, 0), color);
+	Tetrahedron tetra = Tetrahedron(glm::vec3(8, 0, -4), color);
 	std::vector<Triangle> tetraTriangles = tetra.getTriangles();
 	triangles.insert(triangles.end(), tetraTriangles.begin(), tetraTriangles.end());
 
 	// Create sphere
-	color = ColorDbl(1.0, 1.0, 0.0);
-	Sphere sphere = Sphere(glm::vec3(2, 0, 0), 0.5f, color);
+	color = ColorDbl(1.0, 0.0, 1.0);
+	Sphere sphere = Sphere(glm::vec3(5, -2, -4.5), 0.5f, color);
 	spheres.push_back(sphere);
 }
 
@@ -193,7 +192,7 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 		// Check if sphere is hit
 		// Get point of intersection for the ray (might not hit the sphere)
 		if (sphere.calculateSurfacePt(ray->getStartPt(), ray->getDirRay(), &tmpPt)) {
-
+			
 			//distCenter = glm::distance(sphere.getCenterPt(), tmpPt);
 			// Check if intersection point is on the surface of the sphere
 			//if (distCenter > (sphere.getRadius() - EPSILON) && distCenter < (sphere.getRadius() + EPSILON)) {
@@ -201,7 +200,7 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 			tmpSphere.surfacePt = tmpPt;
 			tmpSphere.distToRay = glm::distance(tmpPt, ray->getStartPt());
 			tmpSphere.isHit = true;
-
+			//std::cout << "Passed first if-statement, distToRay = " << tmpSphere.distToRay << std::endl;
 			// Check if the current surface point is the one closest to the ray starting point
 			if (tmpSphere.distToRay < distance) {
 				distance = tmpSphere.distToRay;
@@ -211,12 +210,12 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 				closestSphere.distToRay = tmpSphere.distToRay;
 				closestSphere.isHit = tmpSphere.isHit;
 
-				std::cout << "CLOSEST SPHERE YAO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+				//std::cout << "CLOSEST SPHERE YAO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 			}
 			//}
 		}
 	}
-	std::cout << "SCENE: Closest Distance to Ray = " << closestSphere.distToRay << std::endl;
+	//std::cout << "SCENE: Closest Distance to Ray = " << closestSphere.distToRay << std::endl;
 	return closestSphere;
 }
 

@@ -24,7 +24,7 @@ bool Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir, glm::vec3 *s
 	// TODO: use dp or dm????
 	// Check if ray hits the sphere
 	if (pow((b / 2.0f), 2) - c > 0.0f) {
-		// Calculate d 
+		// Calculate d  
 		d = std::min(-(b / 2.0f) - sqrt(pow((b / 2.0f), 2) - c), -(b / 2.0f) + sqrt(pow((b / 2.0f), 2) - c));
 		
 		// Calculate surface point
@@ -32,8 +32,6 @@ bool Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir, glm::vec3 *s
 		surfacePt->x = pos.x;
 		surfacePt->y = pos.y;
 		surfacePt->z = pos.z;
-		//std::cout << "TRUE" << std::endl;
-
 		return true;
 	}
 	else {

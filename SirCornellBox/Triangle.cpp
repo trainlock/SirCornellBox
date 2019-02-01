@@ -48,7 +48,7 @@ bool Triangle::rayIntersection(Ray *ray, glm::vec3 *_v){
 	T = rayStart - v0;	// T
 	edge1 = v1 - v0;	// E1
 	edge2 = v2 - v0;	// E2
-	D = rayDir - rayStart;
+	D = ray->getDirRay();//rayDir - rayStart;
 	edgeNormal = glm::cross(D, edge2); // P
 	a = glm::dot(edgeNormal, edge1);
 
