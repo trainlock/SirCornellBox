@@ -6,6 +6,7 @@
 #include "Light.h"
 #include "Tetrahedron.h"
 #include "Sphere.h"
+#include "../SirCornellBox/glm/gtx/perpendicular.hpp"
 
 struct TriangleIntersection {
 	Triangle triangle;
@@ -29,6 +30,9 @@ public:
 
 	TriangleIntersection detectTriangle(Ray *ray);
 	SphereIntersection Scene::detectSphere(Ray *ray);
+
+	void ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal);
+	void ConvertToWorld(Ray *ray, glm::vec3 intersectionPt);
 
 	std::vector<Triangle> triangles;
 	std::vector<Sphere> spheres;

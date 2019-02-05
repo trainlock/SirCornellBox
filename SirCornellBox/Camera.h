@@ -25,8 +25,8 @@ private:
 	glm::vec3 eye;
 
 	Scene *scene;
-	const int height = 100;
-	const int width = 100;
+	const int height = 800;
+	const int width = 800;
 	std::vector<Pixel> pixels;
 	std::vector<unsigned char> pxToPic;
 };

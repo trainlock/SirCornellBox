@@ -74,7 +74,7 @@ void Camera::render(){
 			// Divide into subpixel for reflections
 			direction = glm::vec3(0.0f, ((1.0f - middle) - (float)(j)*delta), ((1.0f - middle) - (float)(i)*delta)) - ray.getStartPt();
 			ray.setDirRay(glm::normalize(direction));
-			color = castRay(&ray, 0, color)*colorMult;
+			color = castRay(&ray, 0, color);// *colorMult;
 
 			pixels.push_back(Pixel(color, &ray));
 		}
@@ -156,10 +156,10 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 			// Add intensity to ray and then multiply color in triangle with color in ray
 			Light light = scene->getLights().back();
 			if (isTriangleClosest && !closestSphere.isHit) {
-				color = (closestTriangle.triangle.getColor() * light.getEmission());// *(1 / distLightIntersection));
+				color = (closestTriangle.triangle.getColor() * light.getEmission()*(1 / pow(distLightIntersection, 2)));
 			}
 			else {
-				color = (closestSphere.sphere.getColor() * light.getEmission());// *(1 / distLightIntersection));
+				color = (closestSphere.sphere.getColor() * light.getEmission()*(1 / pow(distLightIntersection, 2)));
 			}
 		}else {
 			// Fix so that the pixels that are in shadow accually are in shadow!

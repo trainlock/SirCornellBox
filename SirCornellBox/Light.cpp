@@ -36,14 +36,14 @@ bool Light::lightIntersection(Ray *ray, glm::vec3 *_p, std::vector<Triangle> _tr
 		if (triangle.rayIntersection(ray, &tmpPt)) {
 			// Check which intersection that is the closest
 
-			//float distTriangle = glm::distance(ray->getStartPt(), tmpPt);
-			//if (distTriangle < distance && distTriangle > 0.0f) {
-				//distance = distTriangle;
+			float distTriangle = glm::distance(ray->getStartPt(), tmpPt);
+			if (distTriangle < distance && distTriangle > 0.0f) {
+				distance = distTriangle;
 				_p->x = tmpPt.x;
 				_p->y = tmpPt.y;
 				_p->z = tmpPt.z;
 				isFound = true;
-			//}
+			}
 		}
 	}
 	return isFound;

@@ -11,7 +11,7 @@ Scene::~Scene(){}
 
 void Scene::initLights() {
 	// Assume white light!
-	lights.push_back(Light(glm::vec3(1, 2, 2.5), 255.00f));
+	lights.push_back(Light(glm::vec3(0, 2, 1), 10000.0f));
 }
 
 void Scene::initVertices(){
@@ -141,7 +141,7 @@ void Scene::initObjects() {
 
 	// Create sphere
 	color = ColorDbl(1.0, 0.0, 1.0);
-	Sphere sphere = Sphere(glm::vec3(5, -2, -4.5), 0.5f, color);
+	Sphere sphere = Sphere(glm::vec3(4, 2, -2), 0.5f, color);
 	spheres.push_back(sphere);
 }
 
@@ -192,15 +192,11 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 		// Check if sphere is hit
 		// Get point of intersection for the ray (might not hit the sphere)
 		if (sphere.calculateSurfacePt(ray->getStartPt(), ray->getDirRay(), &tmpPt)) {
-			
-			//distCenter = glm::distance(sphere.getCenterPt(), tmpPt);
-			// Check if intersection point is on the surface of the sphere
-			//if (distCenter > (sphere.getRadius() - EPSILON) && distCenter < (sphere.getRadius() + EPSILON)) {
 			tmpSphere.sphere = sphere;
 			tmpSphere.surfacePt = tmpPt;
 			tmpSphere.distToRay = glm::distance(tmpPt, ray->getStartPt());
 			tmpSphere.isHit = true;
-			//std::cout << "Passed first if-statement, distToRay = " << tmpSphere.distToRay << std::endl;
+
 			// Check if the current surface point is the one closest to the ray starting point
 			if (tmpSphere.distToRay < distance) {
 				distance = tmpSphere.distToRay;
@@ -209,13 +205,30 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 				closestSphere.surfacePt = tmpSphere.surfacePt;
 				closestSphere.distToRay = tmpSphere.distToRay;
 				closestSphere.isHit = tmpSphere.isHit;
-
-				//std::cout << "CLOSEST SPHERE YAO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
 			}
-			//}
 		}
 	}
-	//std::cout << "SCENE: Closest Distance to Ray = " << closestSphere.distToRay << std::endl;
 	return closestSphere;
+}
+
+
+void Scene::ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal) {
+	glm::vec3 X, Y, Z, I;
+
+	I = ray->getDirRay();
+	Z = normal;
+	X = glm::normalize(glm::perp(I, Z));
+	Y = glm::cross(-X, Z);
+	glm::mat4 m1 = glm::mat4(glm::vec4(X, 0), glm::vec4(Y, 0), glm::vec4(Z, 0), glm::vec4(0, 0, 0, 1));
+	glm::mat4 m2 = glm::mat4(glm::vec4(1, 0, 0, 0), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec4(-intersectionPt.x, -intersectionPt.y, -intersectionPt.z, 1));
+	glm::mat4 M = m1 * m2;
+
+	glm::vec4 iPt = glm::vec4(intersectionPt, 1.0);
+	//glm::vec4 iPtT = glm::outerProduct(M, iPt);
+	glm::vec4 localPos = M * iPt * glm::inverse(M);	
+}
+
+void Scene::ConvertToWorld(Ray *ray, glm::vec3 intersectionPt) {
+
 }
 
