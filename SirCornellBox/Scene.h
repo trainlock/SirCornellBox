@@ -31,8 +31,8 @@ public:
 	TriangleIntersection detectTriangle(Ray *ray);
 	SphereIntersection Scene::detectSphere(Ray *ray);
 
-	void ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal);
-	void ConvertToWorld(Ray *ray, glm::vec3 intersectionPt);
+	glm::vec3 ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal);
+	glm::vec3 ConvertToWorld(Ray *ray, glm::vec3 localVec);
 
 	std::vector<Triangle> triangles;
 	std::vector<Sphere> spheres;

@@ -10,8 +10,7 @@ Triangle::Triangle(){
 
 Triangle::Triangle(glm::vec3 _v0, glm::vec3 _v1, glm::vec3 _v2, ColorDbl _color, std::string _name){
 	v0 = _v0, v1 = _v1, v2 = _v2, color = _color, name = _name;
-	normal = calculateNormal();
-	glm::normalize(normal);
+	normal = glm::normalize(calculateNormal());
 }
 
 Triangle::~Triangle(){}
@@ -26,6 +25,10 @@ std::string Triangle::getName(){
 
 std::array<glm::vec3, 3> Triangle::getVertices(){
 	return{ v0, v1, v2 };
+}
+
+glm::vec3 Triangle::getNormal() {
+	return normal;
 }
 
 glm::vec3 Triangle::calculateNormal(){

@@ -31,3 +31,13 @@ glm::vec3 Ray::getEndPt(){
 glm::vec3 Ray::getDirRay(){
 	return dirRay;
 }
+
+void Ray::setTransMat(glm::mat4 transMat)
+{
+	this->translationMat = transMat;
+}
+
+glm::mat4 Ray::getTransMat()
+{
+	return this->translationMat;
+}

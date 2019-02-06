@@ -22,6 +22,7 @@ public:
 	ColorDbl getColor();
 	std::string getName();
 	std::array<glm::vec3, 3> getVertices();
+	glm::vec3 getNormal();
 
 	glm::vec3 calculateNormal();
 	bool rayIntersection(Ray *ray, glm::vec3 *_v);

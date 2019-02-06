@@ -212,23 +212,25 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 }
 
 
-void Scene::ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal) {
+glm::vec3 Scene::ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal) {
 	glm::vec3 X, Y, Z, I;
 
 	I = ray->getDirRay();
 	Z = normal;
 	X = glm::normalize(glm::perp(I, Z));
 	Y = glm::cross(-X, Z);
-	glm::mat4 m1 = glm::mat4(glm::vec4(X, 0), glm::vec4(Y, 0), glm::vec4(Z, 0), glm::vec4(0, 0, 0, 1));
-	glm::mat4 m2 = glm::mat4(glm::vec4(1, 0, 0, 0), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec4(-intersectionPt.x, -intersectionPt.y, -intersectionPt.z, 1));
-	glm::mat4 M = m1 * m2;
+	glm::mat4 rotationMatrix = glm::mat4(glm::vec4(X, 0), glm::vec4(Y, 0), glm::vec4(Z, 0), glm::vec4(0, 0, 0, 1));
+	glm::mat4 translationMatrix = glm::mat4(glm::vec4(1, 0, 0, 0), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec4(-intersectionPt.x, -intersectionPt.y, -intersectionPt.z, 1));
+	glm::mat4 M = rotationMatrix * translationMatrix;
 
-	glm::vec4 iPt = glm::vec4(intersectionPt, 1.0);
 	//glm::vec4 iPtT = glm::outerProduct(M, iPt);
-	glm::vec4 localPos = M * iPt * glm::inverse(M);	
+	glm::vec4 localPos = M * glm::vec4(intersectionPt, 1.0f) * glm::inverse(M);
+	ray->setTransMat(M);
+	return glm::vec3(localPos.x, localPos.y, localPos.z);
 }
 
-void Scene::ConvertToWorld(Ray *ray, glm::vec3 intersectionPt) {
-
+glm::vec3 Scene::ConvertToWorld(Ray *ray, glm::vec3 localVec) {
+	glm::vec4 worldPt = ray->getTransMat()*glm::vec4(localVec, 1.0f)*glm::inverse(ray->getTransMat());
+	return glm::vec3(worldPt.x, worldPt.y, worldPt.z);
 }
 

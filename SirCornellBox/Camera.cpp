@@ -74,14 +74,14 @@ void Camera::render(){
 			// Divide into subpixel for reflections
 			direction = glm::vec3(0.0f, ((1.0f - middle) - (float)(j)*delta), ((1.0f - middle) - (float)(i)*delta)) - ray.getStartPt();
 			ray.setDirRay(glm::normalize(direction));
-			color = castRay(&ray, 0, color);// *colorMult;
+			color = castRay(&ray, 0, color, i, j);// *colorMult;
 
 			pixels.push_back(Pixel(color, &ray));
 		}
 	}
 }
 
-ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
+ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color, int i, int j) {
 	const float EPSILON = 0.1f;
 	float distIntersection = 0.0f;
 	float distLightIntersection = 0.0f;
@@ -92,6 +92,9 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	glm::vec3 intersectionPt = glm::vec3(0.0f);
 	glm::vec3 lightPt = scene->getLights().back().getPos();
 	glm::vec3 closestPt = glm::vec3(0.0f);
+	glm::vec3 normal = glm::vec3(0.0f);
+	glm::vec3 localPt;
+	glm::vec3 worldPt;
 
 	TriangleIntersection closestTriangle = scene->detectTriangle(ray);
 	SphereIntersection closestSphere = scene->detectSphere(ray);
@@ -103,10 +106,12 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	if (lengthToSphere < lengthToTriangle && closestSphere.isHit) {
 		closestPt = closestSphere.surfacePt;
 		isTriangleClosest = false;
+		normal = glm::normalize(-(closestSphere.sphere.getCenterPt() - closestSphere.surfacePt));
 	}
 	else {
 		closestPt = closestTriangle.point;
 		isTriangleClosest = true;
+		normal = closestTriangle.triangle.getNormal();
 	}
 
 	// Find direction between start point and light point
@@ -118,6 +123,15 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color) {
 	// Set new starting point and direction to the ray
 	ray->setStartPt(closestPt);
 	ray->setDirRay(direction);
+
+
+	if (i % 100 == 0 && j % 100 == 0) {
+		std::cout << "Starting point = " << glm::to_string(closestPt) << std::endl;
+		localPt = scene->ConvertToLocal(ray, closestPt, normal);
+		std::cout << "localPoint = " << glm::to_string(localPt) << std::endl;
+		worldPt = scene->ConvertToWorld(ray, localPt);
+		std::cout << "endPoint = " << glm::to_string(worldPt) << std::endl;
+	}
 
 
 	// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity

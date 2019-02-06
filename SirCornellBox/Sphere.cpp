@@ -21,8 +21,6 @@ bool Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir, glm::vec3 *s
 	// Calculate c
 	c = glm::dot((rayPos - this->centerPos), (rayPos - this->centerPos)) - pow(this->radius, 2);
 
-	//std::cout << "pow((b / 2.0f), 2) - c = " << pow((b / 2.0f), 2) - c << std::endl;
-	// TODO: use dp or dm????
 	// Check if ray hits the sphere
 	if (pow((b / 2.0f), 2) - c > 0.0f) {
 		float d1 = -(b / 2.0f) - sqrt(pow((b / 2.0f), 2) - c);
@@ -33,8 +31,6 @@ bool Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir, glm::vec3 *s
 
 		glm::vec3 pos1 = (rayPos + d1 * rayDir);
 		glm::vec3 pos2 = (rayPos + d2 * rayDir);
-		
-
 
 		if (glm::distance(pos1, rayPos) < EPSILON && d2 > 0.0f) {
 			surfacePt->x = pos2.x;
@@ -48,29 +44,6 @@ bool Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir, glm::vec3 *s
 			surfacePt->z = pos1.z;
 			return true;
 		}
-
-
-		/*if (glm::distance(pos1, rayPos) < glm::distance(pos2, rayPos)) {
-			surfacePt->x = pos1.x;
-			surfacePt->y = pos1.y;
-			surfacePt->z = pos1.z;
-			return true;
-		}
-		else {
-			surfacePt->x = pos2.x;
-			surfacePt->y = pos2.y;
-			surfacePt->z = pos2.z;
-			return true;
-		}*/
-
-		//if (d > 0.0f) {
-		//	// Calculate surface point
-		//	glm::vec3 pos = (rayPos + d * rayDir);
-		//	surfacePt->x = pos.x;
-		//	surfacePt->y = pos.y;
-		//	surfacePt->z = pos.z;
-		//	return true;
-		//}
 	}
 	// No hit
 	return false;

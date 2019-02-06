@@ -8,6 +8,7 @@
 #include "Scene.h"
 #include "Pixel.h"
 #include "lodepng.h"
+#include "../SirCornellBox/glm/gtx/string_cast.hpp"
 
 class Camera{
 public:
@@ -19,14 +20,14 @@ public:
 	void truncatePixels();
 	void pixelsToPicture();
 	void render();
-	ColorDbl castRay(Ray *ray, int depht, ColorDbl color);
+	ColorDbl castRay(Ray *ray, int depht, ColorDbl color, int i, int j);
 private:
 	// Position of eye
 	glm::vec3 eye;
 
 	Scene *scene;
-	const int height = 800;
-	const int width = 800;
+	const int height = 100;
+	const int width = 100;
 	std::vector<Pixel> pixels;
 	std::vector<unsigned char> pxToPic;
 };
