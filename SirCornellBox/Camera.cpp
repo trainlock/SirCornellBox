@@ -74,14 +74,14 @@ void Camera::render(){
 			// Divide into subpixel for reflections
 			direction = glm::vec3(0.0f, ((1.0f - middle) - (float)(j)*delta), ((1.0f - middle) - (float)(i)*delta)) - ray.getStartPt();
 			ray.setDirRay(glm::normalize(direction));
-			color = castRay(&ray, 0, color, i, j);// *colorMult;
+			color = castRay(&ray, 0, color);
 
 			pixels.push_back(Pixel(color, &ray));
 		}
 	}
 }
 
-ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color, int i, int j) {
+ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 	const float EPSILON = 0.1f;
 	float distIntersection = 0.0f;
 	float distLightIntersection = 0.0f;
@@ -124,16 +124,6 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color, int i, int j) {
 	ray->setStartPt(closestPt);
 	ray->setDirRay(direction);
 
-
-	if (i % 100 == 0 && j % 100 == 0) {
-		std::cout << "Starting point = " << glm::to_string(closestPt) << std::endl;
-		localPt = scene->ConvertToLocal(ray, closestPt, normal);
-		std::cout << "localPoint = " << glm::to_string(localPt) << std::endl;
-		worldPt = scene->ConvertToWorld(ray, localPt);
-		std::cout << "endPoint = " << glm::to_string(worldPt) << std::endl;
-	}
-
-
 	// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity
 	// Loop through all of the lights in the scene
 	// If light shines upon thee, take light into your heart and become one with the light!
@@ -147,22 +137,11 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color, int i, int j) {
 		distIntersection = glm::distance(intersectionPt, closestPt);
 
 		// Check if there is a sphere between closest point and the light source
-		//std::cout << "CAMERA: BEFORE IF" << std::endl;
 		SphereIntersection closestSphereIntersect = scene->detectSphere(ray);
-		//std::cout << "CAMERA: AFTER IF" << std::endl;
 		float sphereIntersectionDist = glm::distance(closestSphereIntersect.surfacePt, ray->getStartPt());
 		if (sphereIntersectionDist < distIntersection) {
 			distIntersection = sphereIntersectionDist;
 		}
-
-
-		// TODO: Fix light intersection by checking if a sphere is between the wall or not
-
-		// TODO: Fix so that the shadow on the sphere is inverted (right now the parts that should be in the light is in shadow and vice versa)
-
-
-
-
 
 		// Check if distance to wall is greater than distance to light source
 		if (distIntersection > distLightIntersection || distIntersection < EPSILON) {
@@ -178,7 +157,6 @@ ColorDbl Camera::castRay(Ray *ray, int depht, ColorDbl color, int i, int j) {
 		}else {
 			// Fix so that the pixels that are in shadow accually are in shadow!
 			// If an objects is in the way between the walls and the light then that pixel is in shadow. 
-			//std::cout << "In shadow" << std::endl;
 			color = ColorDbl(0.0, 0.0, 1.0);
 		}
 	}

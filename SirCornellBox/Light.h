@@ -19,5 +19,6 @@ public:
 private:
 	glm::vec3 pos;
 	float intensity; // L0, Intensity is infinate, interpolate between [0, 255]
+	std::vector<Triangle> lights;
 };
 

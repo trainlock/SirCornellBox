@@ -29,7 +29,9 @@ public:
 	std::vector<Light> getLights();
 
 	TriangleIntersection detectTriangle(Ray *ray);
-	SphereIntersection Scene::detectSphere(Ray *ray);
+	SphereIntersection detectSphere(Ray *ray);
+	s
+	// TODO: Add Radiosity or light contribution
 
 	glm::vec3 ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal);
 	glm::vec3 ConvertToWorld(Ray *ray, glm::vec3 localVec);

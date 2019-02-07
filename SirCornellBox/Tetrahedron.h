@@ -2,14 +2,15 @@
 
 #include <vector>
 #include "Triangle.h"
+#include "Material.h"
 
 class Tetrahedron{
 public:
 	Tetrahedron();
-	Tetrahedron(glm::vec3 _pos, ColorDbl _color);
+	Tetrahedron(glm::vec3 _pos, Material _mat);
 	~Tetrahedron();
 
-	void createTetra(glm::vec3 _pos, ColorDbl _color);
+	void createTetra(glm::vec3 _pos, Material _mat);
 
 	std::vector<Triangle> getTriangles();
 

@@ -4,19 +4,25 @@ Triangle::Triangle(){
 	v0 = glm::vec3();
 	v1 = glm::vec3();
 	v2 = glm::vec3();
-	color = ColorDbl(0, 0, 0);
+	mat = Material(ColorDbl(0, 0, 0), 0.0f, 0.0f);
 	normal = glm::vec3(0, 0, 0);
 }
 
-Triangle::Triangle(glm::vec3 _v0, glm::vec3 _v1, glm::vec3 _v2, ColorDbl _color, std::string _name){
-	v0 = _v0, v1 = _v1, v2 = _v2, color = _color, name = _name;
+Triangle::Triangle(glm::vec3 _v0, glm::vec3 _v1, glm::vec3 _v2, Material _mat, std::string _name){
+	v0 = _v0, v1 = _v1, v2 = _v2;
+	mat = _mat;
+	name = _name;
 	normal = glm::normalize(calculateNormal());
 }
 
 Triangle::~Triangle(){}
 
 ColorDbl Triangle::getColor(){
-	return color;
+	return mat.getColor();
+}
+
+Material Triangle::getMaterial() {
+	return mat;
 }
 
 std::string Triangle::getName(){

@@ -7,6 +7,21 @@ Light::Light(){
 Light::Light(glm::vec3 _pos, float _intensity){
 	pos = _pos;
 	intensity = _intensity;
+
+	float heightHalf = 1.0f;
+	float widthHalf = 1.0f;
+
+	glm::vec3 v0 = glm::vec3(_pos.x - widthHalf, _pos.y - heightHalf, _pos.z);
+	glm::vec3 v1 = glm::vec3(_pos.x + widthHalf, _pos.y - heightHalf, _pos.z);
+	glm::vec3 v2 = glm::vec3(_pos.x + widthHalf, _pos.y + heightHalf, _pos.z);
+	glm::vec3 v3 = glm::vec3(_pos.x - widthHalf, _pos.y + heightHalf, _pos.z);
+
+	ColorDbl color = ColorDbl(1.0, 1.0, 1.0) * intensity;
+	float p = 0.0f;
+	float refIdx = 0.0f;
+	Material mat = Material(color, p, refIdx);
+	lights.push_back(Triangle(v0, v1, v2, mat, "light_t0"));
+	lights.push_back(Triangle(v0, v2, v3, mat, "light_t1"));
 }
 
 Light::~Light(){}
@@ -34,8 +49,8 @@ bool Light::lightIntersection(Ray *ray, glm::vec3 *_p, std::vector<Triangle> _tr
 		// Check if the ray intersects the triangle
 		// If so, add the triangle to the returning vector
 		if (triangle.rayIntersection(ray, &tmpPt)) {
-			// Check which intersection that is the closest
 
+			// Check which intersection that is the closest
 			float distTriangle = glm::distance(ray->getStartPt(), tmpPt);
 			if (distTriangle < distance && distTriangle > 0.0f) {
 				distance = distTriangle;

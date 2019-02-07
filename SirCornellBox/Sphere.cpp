@@ -3,10 +3,11 @@
 
 Sphere::Sphere(){}
 
-Sphere::Sphere(glm::vec3 _centerPos, float _radius, ColorDbl _color) {
+Sphere::Sphere(glm::vec3 _centerPos, float _radius, Material _mat) {
 	this->centerPos = _centerPos;
 	this->radius = _radius;
-	this->color = _color;
+	this->mat = _mat;
+	this->color = mat.getColor();
 }
 
 Sphere::~Sphere(){}
@@ -49,9 +50,13 @@ bool Sphere::calculateSurfacePt(glm::vec3 rayPos, glm::vec3 rayDir, glm::vec3 *s
 	return false;
 }
 
-ColorDbl Sphere::getColor()
-{
-	return this->color;
+ColorDbl Sphere::getColor(){
+	return mat.getColor();
+	//return this->color;
+}
+
+Material Sphere::getMaterial() {
+	return mat;
 }
 
 glm::vec3 Sphere::getCenterPt(){

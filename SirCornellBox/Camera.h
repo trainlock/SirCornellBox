@@ -20,7 +20,9 @@ public:
 	void truncatePixels();
 	void pixelsToPicture();
 	void render();
-	ColorDbl castRay(Ray *ray, int depht, ColorDbl color, int i, int j);
+	ColorDbl castRay(Ray *ray, int depth, ColorDbl color);
+
+	// TODO: Add Radiosity or light contribution
 private:
 	// Position of eye
 	glm::vec3 eye;
