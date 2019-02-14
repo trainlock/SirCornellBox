@@ -4,7 +4,7 @@ Tetrahedron::Tetrahedron(){
 	ColorDbl color = ColorDbl(1.0, 1.0, 0.0);
 	float p = 0.8f;
 	float refIdx = 1.0f;
-	Material mat = Material(color, p, refIdx);
+	Material mat = Material(color, p, refIdx, LAMBERTIAN);
 	createTetra(glm::vec3(0.0f, 0.0f, 0.0f), mat);
 }
 

@@ -4,7 +4,7 @@ Triangle::Triangle(){
 	v0 = glm::vec3();
 	v1 = glm::vec3();
 	v2 = glm::vec3();
-	mat = Material(ColorDbl(0, 0, 0), 0.0f, 0.0f);
+	mat = Material(ColorDbl(0, 0, 0), 0.0f, 0.0f, LAMBERTIAN);
 	normal = glm::vec3(0, 0, 0);
 }
 

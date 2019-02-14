@@ -30,7 +30,7 @@ public:
 
 	TriangleIntersection detectTriangle(Ray *ray);
 	SphereIntersection detectSphere(Ray *ray);
-	s
+	
 	// TODO: Add Radiosity or light contribution
 
 	glm::vec3 ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal);

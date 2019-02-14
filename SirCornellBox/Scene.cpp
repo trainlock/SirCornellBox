@@ -49,14 +49,14 @@ void Scene::initTriangles() {
 
 	float p = 0.0f;
 	float refIdx = 0.0f;
-	Material matRoof = Material(roofColor, p, refIdx);
-	Material matFloor = Material(floorColor, p, refIdx);
-	Material matWall1 = Material(wallColor1, p, refIdx);
-	Material matWall2 = Material(wallColor2, p, refIdx);
-	Material matWall3 = Material(wallColor3, p, refIdx);
-	Material matWall4 = Material(wallColor4, p, refIdx);
-	Material matWall5 = Material(wallColor5, p, refIdx);
-	Material matWall6 = Material(wallColor6, p, refIdx);
+	Material matRoof = Material(roofColor, p, refIdx, LAMBERTIAN);
+	Material matFloor = Material(floorColor, p, refIdx, LAMBERTIAN);
+	Material matWall1 = Material(wallColor1, p, refIdx, LAMBERTIAN);
+	Material matWall2 = Material(wallColor2, p, refIdx, LAMBERTIAN);
+	Material matWall3 = Material(wallColor3, p, refIdx, LAMBERTIAN);
+	Material matWall4 = Material(wallColor4, p, refIdx, LAMBERTIAN);
+	Material matWall5 = Material(wallColor5, p, refIdx, LAMBERTIAN);
+	Material matWall6 = Material(wallColor6, p, refIdx, LAMBERTIAN);
 
 	// Triangles Roof
 	Triangle t1(vertices.at(0), vertices.at(1), vertices.at(6), matRoof, "t1");
@@ -148,14 +148,14 @@ void Scene::initObjects() {
 	float p = 0.8f;
 	float refIdx = 1.0f;
 	ColorDbl color = ColorDbl(0.0, 1.0, 0.0);
-	Material mat = Material(color, p, refIdx);
+	Material mat = Material(color, p, refIdx, LAMBERTIAN);
 	Tetrahedron tetra = Tetrahedron(glm::vec3(8, 0, -4), mat);
 	std::vector<Triangle> tetraTriangles = tetra.getTriangles();
 	triangles.insert(triangles.end(), tetraTriangles.begin(), tetraTriangles.end());
 
 	// Create sphere
 	color = ColorDbl(1.0, 0.0, 1.0);
-	mat = Material(color, p, refIdx);
+	mat = Material(color, p, refIdx, LAMBERTIAN);
 	Sphere sphere = Sphere(glm::vec3(4, 2, -2), 0.5f, mat);
 	spheres.push_back(sphere);
 }

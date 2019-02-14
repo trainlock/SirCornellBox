@@ -124,6 +124,118 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 	ray->setStartPt(closestPt);
 	ray->setDirRay(direction);
 
+
+
+
+
+	if (isTriangleClosest && closestTriangle.triangle.getMaterial().getType() == LIGHT) {
+		return (closestTriangle.triangle.getColor() * scene->getLights().back().triangle.getEmission());
+	}
+	// Check if surface point on a triangle is diffuse
+	else if (isTriangleClosest && closestTriangle.triangle.getMaterial().getType() == LAMBERTIAN) {
+		// Get direct light
+
+		// If light shines upon thee, take light into your heart and become one with the light!
+		if (scene->getLights().back().lightIntersection(ray, &intersectionPt, scene->triangles)) {
+			// Get distance between light and closest intersection point
+			distLightIntersection = glm::distance(lightPt, closestPt);
+
+			// Distance to intersecting wall
+			distIntersection = glm::distance(intersectionPt, closestPt);
+
+			// Check if there is a sphere between closest point and the light source
+			SphereIntersection closestSphereIntersect = scene->detectSphere(ray);
+			float sphereIntersectionDist = glm::distance(closestSphereIntersect.surfacePt, ray->getStartPt());
+			if (sphereIntersectionDist < distIntersection) {
+				distIntersection = sphereIntersectionDist;
+			}
+			// Check if distance to wall is greater than distance to light source
+			if (distIntersection > distLightIntersection || distIntersection < EPSILON) {
+				// Add intensity to ray and then multiply color in triangle with color in ray
+				Light light = scene->getLights().back();
+				if (isTriangleClosest && !closestSphere.isHit) {
+					color = (closestTriangle.triangle.getColor() * light.getEmission()*(1 / pow(distLightIntersection, 2)));
+				}
+			}
+			else {
+				color = ColorDbl(0.0, 0.0, 1.0);
+			}
+		}
+		else {
+			std::cout << "Unreachable" << std::endl;
+			return ColorDbl(0.0, 0.0, 0.0);
+		}
+
+		// Integrate over hemisphere around the point
+
+		// BRDF 
+		// Lambertian calculation
+		color = closestTriangle.triangle.getColor();
+
+		// Recursive
+
+		// Indirect light
+		// TODO: set new direction
+		if (depth < 4) {
+			castRay(ray, depth + 1, color);
+		}
+		
+		// Return color * light.getEmission() * (direct + indirect light)
+	}
+
+	else if (!isTriangleClosest && closestSphere.sphere.getMaterial().getType() == LAMBERTIAN) {
+		// Get direct light
+		// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity
+		// Loop through all of the lights in the scene
+		// If light shines upon thee, take light into your heart and become one with the light!
+		if (scene->getLights().back().lightIntersection(ray, &intersectionPt, scene->triangles)) {
+			// Get distance between light and closest intersection point
+			distLightIntersection = glm::distance(lightPt, closestPt);
+
+			// Distance to intersecting wall
+			distIntersection = glm::distance(intersectionPt, closestPt);
+
+			// Check if there is a sphere between closest point and the light source
+			SphereIntersection closestSphereIntersect = scene->detectSphere(ray);
+			float sphereIntersectionDist = glm::distance(closestSphereIntersect.surfacePt, ray->getStartPt());
+			if (sphereIntersectionDist < distIntersection) {
+				distIntersection = sphereIntersectionDist;
+			}
+			// Check if distance to wall is greater than distance to light source
+			if (distIntersection > distLightIntersection || distIntersection < EPSILON) {
+				// Add intensity to ray and then multiply color in triangle with color in ray
+				Light light = scene->getLights().back();
+				color = (closestSphere.sphere.getColor() * light.getEmission()*(1 / pow(distLightIntersection, 2)));
+			}
+			else {
+				color = ColorDbl(0.0, 0.0, 1.0);
+			}
+		}
+		else {
+			std::cout << "Unreachable" << std::endl;
+			return ColorDbl(0.0, 0.0, 0.0);
+		}
+
+		// Integrate over hemisphere around the point
+
+		// BRDF 
+		// Lambertian calculation
+		color = closestSphere.sphere.getColor();
+
+		// Recursive
+
+		// Indirect light
+		if (depth < 4) {
+			castRay(ray, depth + 1, color);
+		}
+		// Return color * light.getEmission() * (direct + indirect light)
+	}
+	
+
+
+
+
+
 	// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity
 	// Loop through all of the lights in the scene
 	// If light shines upon thee, take light into your heart and become one with the light!
@@ -154,9 +266,11 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 			else {
 				color = (closestSphere.sphere.getColor() * light.getEmission()*(1 / pow(distLightIntersection, 2)));
 			}
-		}else {
+		}
+		else {
 			// Fix so that the pixels that are in shadow accually are in shadow!
 			// If an objects is in the way between the walls and the light then that pixel is in shadow. 
+
 			color = ColorDbl(0.0, 0.0, 1.0);
 		}
 	}

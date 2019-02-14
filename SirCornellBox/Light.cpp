@@ -19,7 +19,7 @@ Light::Light(glm::vec3 _pos, float _intensity){
 	ColorDbl color = ColorDbl(1.0, 1.0, 1.0) * intensity;
 	float p = 0.0f;
 	float refIdx = 0.0f;
-	Material mat = Material(color, p, refIdx);
+	Material mat = Material(color, p, refIdx, LIGHT, _intensity);
 	lights.push_back(Triangle(v0, v1, v2, mat, "light_t0"));
 	lights.push_back(Triangle(v0, v2, v3, mat, "light_t1"));
 }
