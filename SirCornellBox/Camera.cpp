@@ -74,14 +74,14 @@ void Camera::render(){
 			// Divide into subpixel for reflections
 			direction = glm::vec3(0.0f, ((1.0f - middle) - (float)(j)*delta), ((1.0f - middle) - (float)(i)*delta)) - ray.getStartPt();
 			ray.setDirRay(glm::normalize(direction));
-			color = castRay(&ray, 0, color);
+			color = castRay(&ray, 0, color, 1.0f);
 
 			pixels.push_back(Pixel(color, &ray));
 		}
 	}
 }
 
-ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
+ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) {
 	const float EPSILON = 0.1f;
 	float distIntersection = 0.0f;
 	float distLightIntersection = 0.0f;
@@ -96,6 +96,9 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 	glm::vec3 localPt;
 	glm::vec3 worldPt;
 
+	Light light = scene->getLights().back();
+	reflectionType type;
+
 	TriangleIntersection closestTriangle = scene->detectTriangle(ray);
 	SphereIntersection closestSphere = scene->detectSphere(ray);
 
@@ -107,15 +110,17 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 		closestPt = closestSphere.surfacePt;
 		isTriangleClosest = false;
 		normal = glm::normalize(-(closestSphere.sphere.getCenterPt() - closestSphere.surfacePt));
+		type = closestSphere.sphere.getMaterial().getType();
 	}
 	else {
 		closestPt = closestTriangle.point;
 		isTriangleClosest = true;
 		normal = closestTriangle.triangle.getNormal();
+		type = closestTriangle.triangle.getMaterial().getType();
 	}
 
 	// Find direction between start point and light point
-	glm::vec3 direction = scene->getLights().back().getPos() - closestPt;
+	glm::vec3 direction = light.getPos() - closestPt;
 
 	// Normalise the direction
 	direction = glm::normalize(direction);
@@ -124,19 +129,95 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 	ray->setStartPt(closestPt);
 	ray->setDirRay(direction);
 
-
-
-
-
-	if (isTriangleClosest && closestTriangle.triangle.getMaterial().getType() == LIGHT) {
-		return (closestTriangle.triangle.getColor() * scene->getLights().back().triangle.getEmission());
+	// Check if triangle is light
+	if (isTriangleClosest && type == LIGHT) {
+		// Return light emission
+		return light.getEmission()*importance;
 	}
+
+	// Check material
+	// If lambertian ==>
+	// 0. Check if depth is reached
+		// Return light/color
+	// 1. Direct light
+		// Check if something covers part of the light source
+		// Add direct to contributed light
+	// 2. New direction (use local)
+		// Calculate new importance to ray (BRDF, value = 0.8 for diffuse material)
+	// 3. Collect indirect light
+		// Add indirect to contributed light
+		// Increase depth counter
+	// 4. Recursive with all contributed light (in color)
+
+
+	// Triangle intersected
+	if (isTriangleClosest) {
+		
+	}
+	// Sphere intersected
+	else if (!isTriangleClosest) {
+
+	}
+
+	// Check if a diffuse area is hit
+	if (type == LAMBERTIAN) {
+
+		// Get direct light
+		ColorDbl directLight = scene.computeDirectLight();
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// Check if surface point on a triangle is diffuse
 	else if (isTriangleClosest && closestTriangle.triangle.getMaterial().getType() == LAMBERTIAN) {
 		// Get direct light
 
 		// If light shines upon thee, take light into your heart and become one with the light!
-		if (scene->getLights().back().lightIntersection(ray, &intersectionPt, scene->triangles)) {
+		if (light.lightIntersection(ray, &intersectionPt, scene->triangles)) {
 			// Get distance between light and closest intersection point
 			distLightIntersection = glm::distance(lightPt, closestPt);
 
@@ -152,7 +233,6 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 			// Check if distance to wall is greater than distance to light source
 			if (distIntersection > distLightIntersection || distIntersection < EPSILON) {
 				// Add intensity to ray and then multiply color in triangle with color in ray
-				Light light = scene->getLights().back();
 				if (isTriangleClosest && !closestSphere.isHit) {
 					color = (closestTriangle.triangle.getColor() * light.getEmission()*(1 / pow(distLightIntersection, 2)));
 				}
@@ -177,7 +257,7 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 		// Indirect light
 		// TODO: set new direction
 		if (depth < 4) {
-			castRay(ray, depth + 1, color);
+			castRay(ray, depth + 1, color, 1.0f);
 		}
 		
 		// Return color * light.getEmission() * (direct + indirect light)
@@ -206,6 +286,7 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 				// Add intensity to ray and then multiply color in triangle with color in ray
 				Light light = scene->getLights().back();
 				color = (closestSphere.sphere.getColor() * light.getEmission()*(1 / pow(distLightIntersection, 2)));
+				//importance = importance*brdf;
 			}
 			else {
 				color = ColorDbl(0.0, 0.0, 1.0);
@@ -226,7 +307,7 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color) {
 
 		// Indirect light
 		if (depth < 4) {
-			castRay(ray, depth + 1, color);
+			castRay(ray, depth + 1, color, importance);
 		}
 		// Return color * light.getEmission() * (direct + indirect light)
 	}

@@ -226,6 +226,72 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 	return closestSphere;
 }
 
+ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
+
+	// Variables
+	ColorDbl color;
+	glm::vec3 trianglePt;
+	float lengthToSphere = 0.0f, lengthToTriangle = 0.0f;
+	float closestDist = 100000.0f;
+	int lightSourcesHit = 0;
+	int nrOfPt = 3;
+	bool currentLightIsHit = false;
+
+	// Create new ray
+	Ray ray(surfacePt);
+
+	// Loop through triangles in light
+	for (auto &light : lights) {
+		currentLightIsHit = false;
+		// Loop through a set number of points on light area
+		for (auto &t : light.getTriangles()){
+			if (currentLightIsHit) {
+				break;
+			}
+
+			for (int i = 0; i < nrOfPt; i++) {
+				if (currentLightIsHit) {
+					break;
+				}
+
+				// Get random point on within the light area
+				trianglePt = t.getRandomPt();
+
+				// Update the endpoint for the ray
+				ray.setEndPt(trianglePt);
+
+				float distToLight = glm::distance(surfacePt, trianglePt);
+
+				// Calculate intersections
+				TriangleIntersection closestTriangle = detectTriangle(&ray);
+				SphereIntersection closestSphere = detectSphere(&ray);
+
+				// Compute distance between intersections and the surface point
+				lengthToSphere = closestSphere.distToRay;
+				lengthToTriangle = glm::distance(closestTriangle.point, ray.getStartPt());
+
+				// Check which intersection is the closest
+				if (lengthToSphere < lengthToTriangle && closestSphere.isHit) {
+					closestDist = lengthToSphere;
+				}
+				else {
+					closestDist = lengthToTriangle;
+				}
+
+				// Check if there is a something between surface point and the light source
+				if (closestDist < distToLight) {
+					continue;
+				}
+
+				// Add light to contributed light
+				color += light.getEmission();
+				currentLightIsHit = true;
+			}
+		}
+	}
+
+	return color;
+}
 
 glm::vec3 Scene::ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal) {
 	glm::vec3 X, Y, Z, I;

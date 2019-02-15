@@ -37,6 +37,24 @@ glm::vec3 Triangle::getNormal() {
 	return normal;
 }
 
+glm::vec3 Triangle::getRandomPt() {
+	float u = rand() / RAND_MAX;
+	float v = rand() / RAND_MAX;
+
+	if (u + v > 1.0) {
+		return getRandomPt();
+	}
+	return getBarycentric(u, v);
+}
+
+glm::vec3 Triangle::getBarycentric(float u, float v){
+	glm::vec3 pt;
+	pt.x = (1 - u - v) * v0.x + u * v1.x + v * v2.x;
+	pt.y = (1 - u - v) * v0.y + u * v1.y + v * v2.y;
+	pt.z = (1 - u - v) * v0.z + u * v1.z + v * v2.z;
+	return pt;
+}
+
 glm::vec3 Triangle::calculateNormal(){
 	glm::vec3 d1 = glm::vec3(v1.x - v0.x, v1.y - v0.y, v1.z - v0.z);
 	glm::vec3 d2 = glm::vec3(v2.x - v0.x, v2.y - v0.y, v2.z - v0.z);

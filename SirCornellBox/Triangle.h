@@ -25,10 +25,13 @@ public:
 	std::string getName();
 	std::array<glm::vec3, 3> getVertices();
 	glm::vec3 getNormal();
+	glm::vec3 getRandomPt();
 
 	glm::vec3 calculateNormal();
 	bool rayIntersection(Ray *ray, glm::vec3 *_v);
 private:
+	glm::vec3 getBarycentric(float u, float v);
+
 	glm::vec3 v0, v1, v2;
 	glm::vec3 normal;
 	ColorDbl color;

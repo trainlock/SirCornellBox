@@ -13,12 +13,13 @@ public:
 	ColorDbl getEmission();
 	float getIntensity();
 	glm::vec3 getPos();
+	std::vector<Triangle> getTriangles();
 
 	bool lightIntersection(Ray *ray, glm::vec3 *_p, std::vector<Triangle> _triangles);
 
 private:
 	glm::vec3 pos;
 	float intensity; // L0, Intensity is infinate, interpolate between [0, 255]
-	std::vector<Triangle> lights;
+	std::vector<Triangle> triangles;
 };
 

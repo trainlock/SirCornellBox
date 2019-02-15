@@ -20,8 +20,8 @@ Light::Light(glm::vec3 _pos, float _intensity){
 	float p = 0.0f;
 	float refIdx = 0.0f;
 	Material mat = Material(color, p, refIdx, LIGHT, _intensity);
-	lights.push_back(Triangle(v0, v1, v2, mat, "light_t0"));
-	lights.push_back(Triangle(v0, v2, v3, mat, "light_t1"));
+	triangles.push_back(Triangle(v0, v1, v2, mat, "light_t0"));
+	triangles.push_back(Triangle(v0, v2, v3, mat, "light_t1"));
 }
 
 Light::~Light(){}
@@ -37,6 +37,10 @@ float Light::getIntensity() {
 
 glm::vec3 Light::getPos(){
 	return pos;
+}
+
+std::vector<Triangle> Light::getTriangles() {
+	return triangles;
 }
 
 bool Light::lightIntersection(Ray *ray, glm::vec3 *_p, std::vector<Triangle> _triangles){
