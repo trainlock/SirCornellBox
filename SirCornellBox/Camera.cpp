@@ -83,6 +83,8 @@ void Camera::render(){
 
 ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) {
 	const float EPSILON = 0.1f;
+	const int MAX_DEPTH = 2;
+
 	float distIntersection = 0.0f;
 	float distLightIntersection = 0.0f;
 	float lengthToSphere;
@@ -97,7 +99,14 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) 
 	glm::vec3 worldPt;
 
 	Light light = scene->getLights().back();
+	ColorDbl indirectLight = color;
+	ColorDbl directLight;
+	ColorDbl surfaceColor;
+	ColorDbl color1;
 	reflectionType type;
+	Material mat;
+
+	std::cout << "START: Color = " << color << std::endl;
 
 	TriangleIntersection closestTriangle = scene->detectTriangle(ray);
 	SphereIntersection closestSphere = scene->detectSphere(ray);
@@ -110,14 +119,17 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) 
 		closestPt = closestSphere.surfacePt;
 		isTriangleClosest = false;
 		normal = glm::normalize(-(closestSphere.sphere.getCenterPt() - closestSphere.surfacePt));
-		type = closestSphere.sphere.getMaterial().getType();
+		mat = closestSphere.sphere.getMaterial();
 	}
 	else {
 		closestPt = closestTriangle.point;
 		isTriangleClosest = true;
 		normal = closestTriangle.triangle.getNormal();
-		type = closestTriangle.triangle.getMaterial().getType();
+		mat = closestTriangle.triangle.getMaterial();
 	}
+	// Get type and color of surface for closest point
+	type = mat.getType();
+	surfaceColor = mat.getColor();
 
 	// Find direction between start point and light point
 	glm::vec3 direction = light.getPos() - closestPt;
@@ -131,6 +143,7 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) 
 
 	// Check if triangle is light
 	if (isTriangleClosest && type == LIGHT) {
+		std::cout << "light" << std::endl;
 		// Return light emission
 		return light.getEmission()*importance;
 	}
@@ -149,21 +162,35 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) 
 		// Increase depth counter
 	// 4. Recursive with all contributed light (in color)
 
-
-	// Triangle intersected
-	if (isTriangleClosest) {
-		
-	}
-	// Sphere intersected
-	else if (!isTriangleClosest) {
-
-	}
-
 	// Check if a diffuse area is hit
 	if (type == LAMBERTIAN) {
-
 		// Get direct light
-		ColorDbl directLight = scene.computeDirectLight();
+		directLight = scene->ComputeDirectLight(closestPt);
+		color1 = color;
+
+		// Calculate new importance
+		importance = importance * mat.getBRDF();
+
+		// Calculate new direction of ray
+		localPt = scene->ConvertToLocal(ray, closestPt, normal);
+		worldPt = scene->ConvertToWorld(ray, localPt);
+		ray->setDirRay(worldPt);
+
+		// Calculate indirect light with new direction of ray until depht is reached (recursive)
+		if (depth < MAX_DEPTH) {
+			depth++;
+			indirectLight += castRay(ray, depth, indirectLight, importance);
+		}
+
+		//std::cout << "Indirect light = " << indirectLight << ", ray Dir = " << glm::to_string(ray->getDirRay()) << ", directLight = " << directLight << std::endl;
+
+		// Summarise all lights
+		color = (directLight + indirectLight) * surfaceColor;
+
+		//std::cout << "Color1 = " << color1 << ", indirectLight = " << indirectLight << ", surfaceColor = " << surfaceColor << ",  color = " << color << std::endl;
+
+		// Return all light and color
+		return color;
 	}
 
 
@@ -211,7 +238,7 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) 
 
 
 
-
+	/*
 	// Check if surface point on a triangle is diffuse
 	else if (isTriangleClosest && closestTriangle.triangle.getMaterial().getType() == LAMBERTIAN) {
 		// Get direct light
@@ -360,4 +387,5 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) 
 		color = ColorDbl(0.0, 1.0, 0.0);
 	}
 	return color;
+	*/
 }

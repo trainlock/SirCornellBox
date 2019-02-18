@@ -46,6 +46,14 @@ ColorDbl ColorDbl::operator+=(const ColorDbl c) {
 	return ColorDbl(r + c.r, g + c.g, b + c.b);
 }
 
+ColorDbl ColorDbl::operator/=(const float f)
+{
+	this->r /= f;
+	this->g /= f;
+	this->b /= f;
+	return *this;
+}
+
 std::ostream& operator<<(std::ostream& os, const ColorDbl& c) {
 	os << "(" << c.r << ", " << c.g << ", " << c.b << ")";
 	return os;

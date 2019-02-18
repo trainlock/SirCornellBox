@@ -47,7 +47,8 @@ void Scene::initTriangles() {
 	ColorDbl wallColor5 = ColorDbl(0.0, 1.0, 0.0); // Green
 	ColorDbl wallColor6 = ColorDbl(0.0, 0.0, 1.0); // Blue
 
-	float p = 0.0f;
+	//float p = 0.0f;
+	float p = 2.512f;
 	float refIdx = 0.0f;
 	Material matRoof = Material(roofColor, p, refIdx, LAMBERTIAN);
 	Material matFloor = Material(floorColor, p, refIdx, LAMBERTIAN);
@@ -145,7 +146,8 @@ void Scene::initTriangles() {
 
 void Scene::initObjects() {
 	// Create tetrahedron
-	float p = 0.8f;
+	//float p = 0.8f;
+	float p = 2.512f;
 	float refIdx = 1.0f;
 	ColorDbl color = ColorDbl(0.0, 1.0, 0.0);
 	Material mat = Material(color, p, refIdx, LAMBERTIAN);
@@ -227,13 +229,16 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 }
 
 ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
+	// TODO: Something is not quite right in here...
 
 	// Variables
-	ColorDbl color;
+	const float EPSILON = 0.001f;
+
+	ColorDbl color, tmpColor;
 	glm::vec3 trianglePt;
 	float lengthToSphere = 0.0f, lengthToTriangle = 0.0f;
 	float closestDist = 100000.0f;
-	int lightSourcesHit = 0;
+	int lightSourcesHit = 0, lightPtsHit = 0;
 	int nrOfPt = 3;
 	bool currentLightIsHit = false;
 
@@ -242,9 +247,15 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 
 	// Loop through triangles in light
 	for (auto &light : lights) {
+		// TODO: Check the light if they are correct
+
 		currentLightIsHit = false;
 		// Loop through a set number of points on light area
+		tmpColor = tmpColor*0.0f;
 		for (auto &t : light.getTriangles()){
+
+			std::cout << "SCENE: Light = " << t.getName() << ", light emission = " << light.getEmission() << std::endl;
+
 			if (currentLightIsHit) {
 				break;
 			}
@@ -272,24 +283,37 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 
 				// Check which intersection is the closest
 				if (lengthToSphere < lengthToTriangle && closestSphere.isHit) {
+					std::cout << "SCENE: SPHERE is closest" << std::endl;
 					closestDist = lengthToSphere;
 				}
 				else {
+					std::cout << "SCENE: TRIANGLE is closest" << std::endl;
 					closestDist = lengthToTriangle;
 				}
 
 				// Check if there is a something between surface point and the light source
-				if (closestDist < distToLight) {
+				if (closestDist < distToLight || distToLight < EPSILON) {
+					std::cout << "SCENE: Something is blocking the light" << std::endl;
 					continue;
 				}
 
 				// Add light to contributed light
-				color += light.getEmission();
+				// TODO: Do we have a light?? Check light emissoin (again!)
+				tmpColor += light.getEmission();
 				currentLightIsHit = true;
+				lightSourcesHit++;
+				lightPtsHit++;
+				std::cout << "SCENE: tmpColor = " << tmpColor << ", lightSourcesHit = " << lightSourcesHit << ", lightPtsHt = " << lightPtsHit << std::endl;
 			}
 		}
+		if (currentLightIsHit) {
+			// TODO: TmpColor = 0?!?!?! and color is nonsense :O
+			tmpColor /= lightPtsHit;
+			color += tmpColor;
+		}
+		std::cout << "SCENE: Color = " << color << std::endl;
 	}
-
+	color /= lightSourcesHit;
 	return color;
 }
 

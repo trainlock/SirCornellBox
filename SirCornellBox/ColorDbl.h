@@ -13,6 +13,7 @@ public:
 	ColorDbl operator*(const ColorDbl c);
 	ColorDbl operator+(const ColorDbl c);
 	ColorDbl operator+=(const ColorDbl c);
+	ColorDbl operator/=(const float f);
 	friend std::ostream& operator<<(std::ostream& os, const ColorDbl& c);
 
 	void setColor(ColorDbl _color);
