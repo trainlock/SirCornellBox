@@ -9,6 +9,7 @@ public:
 	~ColorDbl();
 
 	// Operators
+	ColorDbl operator=(const float f);
 	ColorDbl operator*(const float f);
 	ColorDbl operator*(const ColorDbl c);
 	ColorDbl operator+(const ColorDbl c);

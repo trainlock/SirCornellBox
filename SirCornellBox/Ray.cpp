@@ -3,33 +3,34 @@
 Ray::Ray(){}
 
 Ray::Ray(glm::vec3 _start){
-	start = _start;
+	this->start = _start;
 }
 
 Ray::~Ray(){}
 
 void Ray::setDirRay(glm::vec3 _dirRay){
-	dirRay = _dirRay;
+	this->dirRay = _dirRay;
 }
 
 void Ray::setStartPt(glm::vec3 _start){
-	start = _start;
+	this->start = _start;
 }
 
 void Ray::setEndPt(glm::vec3 _end){
-	end = _end;
+	this->end = _end;
+	this->dirRay = glm::normalize(this->end - this->start);
 }
 
 glm::vec3 Ray::getStartPt(){
-	return start;
+	return this->start;
 }
 
 glm::vec3 Ray::getEndPt(){
-	return end;
+	return this->end;
 }
 
 glm::vec3 Ray::getDirRay(){
-	return dirRay;
+	return this->dirRay;
 }
 
 void Ray::setTransMat(glm::mat4 transMat)

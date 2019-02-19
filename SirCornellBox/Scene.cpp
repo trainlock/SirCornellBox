@@ -232,7 +232,7 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 	// TODO: Something is not quite right in here...
 
 	// Variables
-	const float EPSILON = 0.001f;
+	const float EPSILON = 0.01f;
 
 	ColorDbl color, tmpColor;
 	glm::vec3 trianglePt;
@@ -250,11 +250,12 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 		// TODO: Check the light if they are correct
 
 		currentLightIsHit = false;
+		tmpColor = tmpColor * 0.0f;
+
 		// Loop through a set number of points on light area
-		tmpColor = tmpColor*0.0f;
 		for (auto &t : light.getTriangles()){
 
-			std::cout << "SCENE: Light = " << t.getName() << ", light emission = " << light.getEmission() << std::endl;
+			//std::cout << "SCENE: Light = " << t.getName() << ", light emission = " << light.getEmission() << std::endl;
 
 			if (currentLightIsHit) {
 				break;
@@ -283,35 +284,44 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 
 				// Check which intersection is the closest
 				if (lengthToSphere < lengthToTriangle && closestSphere.isHit) {
-					std::cout << "SCENE: SPHERE is closest" << std::endl;
+					//std::cout << "SCENE: SPHERE is closest" << std::endl;
 					closestDist = lengthToSphere;
 				}
 				else {
-					std::cout << "SCENE: TRIANGLE is closest" << std::endl;
+					//std::cout << "SCENE: TRIANGLE is closest" << std::endl;
 					closestDist = lengthToTriangle;
 				}
 
+				// TODO: Check so that not to much light or to little gets through (obscured)
+				// TODO: Black stripes/dots appear on the image (not enough light gets through)
+
 				// Check if there is a something between surface point and the light source
+				//if (std::abs(-closestDist + distToLight) > EPSILON){// || distToLight < EPSILON) {
 				if (closestDist < distToLight || distToLight < EPSILON) {
-					std::cout << "SCENE: Something is blocking the light" << std::endl;
 					continue;
 				}
 
 				// Add light to contributed light
 				// TODO: Do we have a light?? Check light emissoin (again!)
-				tmpColor += light.getEmission();
+				tmpColor += light.getEmission()*(1/pow(distToLight,2));
+
+				//std::cout << "SCENE: tmpColor = " << tmpColor << ", light.getEmission() = " << light.getEmission() << std::endl;
+				
 				currentLightIsHit = true;
 				lightSourcesHit++;
 				lightPtsHit++;
-				std::cout << "SCENE: tmpColor = " << tmpColor << ", lightSourcesHit = " << lightSourcesHit << ", lightPtsHt = " << lightPtsHit << std::endl;
+				//std::cout << "SCENE: tmpColor = " << tmpColor << ", lightSourcesHit = " << lightSourcesHit << ", lightPtsHt = " << lightPtsHit << std::endl;
 			}
 		}
 		if (currentLightIsHit) {
-			// TODO: TmpColor = 0?!?!?! and color is nonsense :O
 			tmpColor /= lightPtsHit;
 			color += tmpColor;
 		}
-		std::cout << "SCENE: Color = " << color << std::endl;
+		else {
+			//std::cout << "SCENE: ELSE" << std::endl;
+			color = 0.0f;
+		}
+		//std::cout << "SCENE: Color = " << color << std::endl;
 	}
 	color /= lightSourcesHit;
 	return color;
