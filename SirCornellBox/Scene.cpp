@@ -235,7 +235,7 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 	const float EPSILON = 0.01f;
 
 	ColorDbl color, tmpColor;
-	glm::vec3 trianglePt;
+	glm::vec3 lightPt;
 	float lengthToSphere = 0.0f, lengthToTriangle = 0.0f;
 	float closestDist = 100000.0f;
 	int lightSourcesHit = 0, lightPtsHit = 0;
@@ -267,12 +267,12 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 				}
 
 				// Get random point on within the light area
-				trianglePt = t.getRandomPt();
+				lightPt = t.getRandomPt();
 
 				// Update the endpoint for the ray
-				ray.setEndPt(trianglePt);
+				ray.setEndPt(lightPt);
 
-				float distToLight = glm::distance(surfacePt, trianglePt);
+				float distToLight = glm::distance(surfacePt, lightPt);
 
 				// Calculate intersections
 				TriangleIntersection closestTriangle = detectTriangle(&ray);
@@ -297,7 +297,8 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 
 				// Check if there is a something between surface point and the light source
 				//if (std::abs(-closestDist + distToLight) > EPSILON){// || distToLight < EPSILON) {
-				if (closestDist < distToLight || distToLight < EPSILON) {
+				if (closestDist < distToLight && closestDist > EPSILON) {
+					std::cout << "SCENE: DARK! closestDist = " << closestDist << ", distToLight = " << distToLight << std::endl;
 					continue;
 				}
 

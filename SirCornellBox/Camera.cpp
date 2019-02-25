@@ -347,7 +347,7 @@ ColorDbl Camera::castRay(Ray *ray, int depth, ColorDbl color, float importance) 
 	// Intensity added to colorDbl of each pixel as such px.getColor().r*intensity
 	// Loop through all of the lights in the scene
 	// If light shines upon thee, take light into your heart and become one with the light!
-	if (scene->getLights().back().lightIntersection(ray, &intersectionPt, scene->triangles)) {
+	if ()) {
 		// Color from ray and intensity from light
 
 		// Get distance between light and closest intersection point
