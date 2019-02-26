@@ -1,6 +1,9 @@
 #pragma once
+#define _USE_MATH_DEFINES
 
 #include <vector>
+#include <random>
+#include <cmath> 
 
 #include "ColorDbl.h"
 #include "../SirCornellBox/glm/glm.hpp"
@@ -21,6 +24,8 @@ public:
 
 	void setTransMat(glm::mat4 transMat);
 	glm::mat4 getTransMat();
+
+	glm::vec3 calculateLambertian(glm::vec3 pt);
 
 private:
 	glm::vec3 start, end;

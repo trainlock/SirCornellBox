@@ -229,8 +229,6 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 }
 
 ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
-	// TODO: Something is not quite right in here...
-
 	// Variables
 	const float EPSILON = 0.01f;
 
@@ -247,16 +245,11 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 
 	// Loop through triangles in light
 	for (auto &light : lights) {
-		// TODO: Check the light if they are correct
-
 		currentLightIsHit = false;
 		tmpColor = tmpColor * 0.0f;
 
 		// Loop through a set number of points on light area
 		for (auto &t : light.getTriangles()){
-
-			//std::cout << "SCENE: Light = " << t.getName() << ", light emission = " << light.getEmission() << std::endl;
-
 			if (currentLightIsHit) {
 				break;
 			}
@@ -292,39 +285,24 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 					closestDist = lengthToTriangle;
 				}
 
-				// TODO: Check so that not to much light or to little gets through (obscured)
-				// TODO: Black stripes/dots appear on the image (not enough light gets through)
-
 				// Check if there is a something between surface point and the light source
-				//if (std::abs(-closestDist + distToLight) > EPSILON){// || distToLight < EPSILON) {
 				if (closestDist < distToLight && closestDist > EPSILON) {
-					std::cout << "SCENE: DARK! closestDist = " << closestDist << ", distToLight = " << distToLight << std::endl;
 					continue;
 				}
 
 				// Add light to contributed light
-				// TODO: Do we have a light?? Check light emissoin (again!)
 				tmpColor += light.getEmission()*(1/pow(distToLight,2));
 
-				//std::cout << "SCENE: tmpColor = " << tmpColor << ", light.getEmission() = " << light.getEmission() << std::endl;
-				
 				currentLightIsHit = true;
-				lightSourcesHit++;
-				lightPtsHit++;
-				//std::cout << "SCENE: tmpColor = " << tmpColor << ", lightSourcesHit = " << lightSourcesHit << ", lightPtsHt = " << lightPtsHit << std::endl;
 			}
 		}
 		if (currentLightIsHit) {
-			tmpColor /= lightPtsHit;
 			color += tmpColor;
 		}
 		else {
-			//std::cout << "SCENE: ELSE" << std::endl;
 			color = 0.0f;
 		}
-		//std::cout << "SCENE: Color = " << color << std::endl;
 	}
-	color /= lightSourcesHit;
 	return color;
 }
 
@@ -336,7 +314,7 @@ glm::vec3 Scene::ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 no
 	X = glm::normalize(glm::perp(I, Z));
 	Y = glm::cross(-X, Z);
 	glm::mat4 rotationMatrix = glm::mat4(glm::vec4(X, 0), glm::vec4(Y, 0), glm::vec4(Z, 0), glm::vec4(0, 0, 0, 1));
-	glm::mat4 translationMatrix = glm::mat4(glm::vec4(1, 0, 0, 0), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec4(-intersectionPt.x, -intersectionPt.y, -intersectionPt.z, 1));
+	glm::mat4 translationMatrix = glm::mat4(glm::vec4(1, 0, 0, 0), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec4(intersectionPt.x, intersectionPt.y, intersectionPt.z, 1));
 	glm::mat4 M = rotationMatrix * translationMatrix;
 
 	//glm::vec4 iPtT = glm::outerProduct(M, iPt);

@@ -62,7 +62,6 @@ glm::vec3 Triangle::calculateNormal(){
 	return glm::cross(d1, d2);
 }
 
-
 bool Triangle::rayIntersection(Ray *ray, glm::vec3 *_v){
 	// Write code for intersection here
 	const float EPSILON = 0.000000000001f;
@@ -107,7 +106,6 @@ bool Triangle::rayIntersection(Ray *ray, glm::vec3 *_v){
 	}
 	return false;
 }
-
 
 std::ostream& operator<<(std::ostream& os, const Triangle& t){
 	os << "v0: " << glm::to_string(t.v0) << std::endl 

@@ -20,7 +20,7 @@ public:
 	void truncatePixels();
 	void pixelsToPicture();
 	void render();
-	ColorDbl castRay(Ray *ray, int depth, ColorDbl color, float importance);
+	ColorDbl castRay(Ray *ray, int depth, float importance);
 
 	// TODO: Add Radiosity or light contribution
 private:
