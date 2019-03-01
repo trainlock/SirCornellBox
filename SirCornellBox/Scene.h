@@ -32,7 +32,7 @@ public:
 	SphereIntersection detectSphere(Ray *ray);
 	
 	// TODO: Add Radiosity or light contribution
-	ColorDbl ComputeDirectLight(glm::vec3 surfacePt);
+	ColorDbl ComputeDirectLight(glm::vec3 surfacePt, glm::vec3 normal);
 
 	glm::vec3 ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal);
 	glm::vec3 ConvertToWorld(Ray *ray, glm::vec3 localVec);

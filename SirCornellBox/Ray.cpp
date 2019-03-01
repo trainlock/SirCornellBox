@@ -41,27 +41,38 @@ glm::mat4 Ray::getTransMat(){
 	return this->translationMat;
 }
 
-glm::vec3 Ray::calculateLambertian(glm::vec3 pt) {
-	glm::vec3 newDir = glm::vec3(0.0f);
-	glm::vec3 newPt = glm::vec3(0.0f);
-	float inclination, azimuth; // Radians
+glm::vec3 Ray::calculateLambertian(glm::vec3 pt, glm::vec3 normal) {
+	//glm::vec3 newDir = glm::vec3(0.0f);
+	//glm::vec3 newPt = glm::vec3(0.0f);
+	//float inclination, azimuth; // Radians
 
-	// Initialise random
-	std::default_random_engine generator;
-	std::default_random_engine newGenerator;
+	//// Initialise random angles in degrees
+	//azimuth = rand() % 360;
+	//inclination = rand() % 90;
 
-	// Get random angles
-	std::uniform_real_distribution<double> distribution(0, 2.0f * M_PI);
-	azimuth = distribution(generator);
-	std::uniform_real_distribution<double> newDistribution(0, M_PI / 2.0f);
-	inclination = newDistribution(newGenerator);
+	//// Convert to radians
+	//azimuth = glm::radians(azimuth);
+	//inclination = glm::radians(inclination);
 
-	// Calculate new direction
-	newPt.x = cos(azimuth);
-	newPt.y = sin(azimuth);
-	newPt.z = sin(inclination);
-	//std::cout << "RAY: newPt.z = " << newPt.z << "; inclination = " << inclination << std::endl;
+	//// Calculate new direction
+	//newPt.x = cos(azimuth);
+	//newPt.y = sin(azimuth);
+	//newPt.z = sin(inclination);
+	////std::cout << "RAY: Pt = " << glm::to_string(pt) << "; newPt = " << glm::to_string(newPt) << "; inclination = " << inclination << "; newPt - Pt = " << glm::to_string(newPt - pt) << std::endl;
 
+
+	float inclanation = (M_PI / 4) + (rand() / RAND_MAX) * (M_PI / 4);
+	float azimuth = (rand() / RAND_MAX) * (2 * M_PI);
+	glm::vec3 _in = glm::vec3(dirRay.x, dirRay.y, dirRay.z);
+	glm::vec3 _normal = glm::normalize(glm::vec3(normal.x, normal.y, normal.z));
+	glm::vec3 _tangent = glm::normalize((glm::cross(_in, _normal)));
+	glm::vec3 _out = _normal;
+
+	_out = glm::normalize(glm::rotate(_out, inclanation, _tangent));
+	_out = glm::normalize(glm::rotate(_out, azimuth, _normal));
+
+	glm::vec3 newDir = glm::vec3(_out.x, _out.y, _out.z);
+	
 	// Return new direction
-	return newPt;
+	return newDir;
 }

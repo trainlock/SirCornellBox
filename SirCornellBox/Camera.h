@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <vector>
+#include <stdlib.h> // rand
+
 #include "Scene.h"
 #include "Pixel.h"
 #include "lodepng.h"
@@ -28,8 +30,8 @@ private:
 	glm::vec3 eye;
 
 	Scene *scene;
-	const int height = 100;
-	const int width = 100;
+	const int height = 200;
+	const int width = 200;
 	std::vector<Pixel> pixels;
 	std::vector<unsigned char> pxToPic;
 };

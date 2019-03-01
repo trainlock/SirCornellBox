@@ -22,6 +22,8 @@ Light::Light(glm::vec3 _pos, float _intensity){
 	Material mat = Material(color, p, refIdx, LIGHT, _intensity);
 	triangles.push_back(Triangle(v0, v1, v2, mat, "light_t0"));
 	triangles.push_back(Triangle(v0, v2, v3, mat, "light_t1"));
+
+	area = heightHalf * widthHalf * 2.0f;
 }
 
 Light::~Light(){}
@@ -43,13 +45,17 @@ std::vector<Triangle> Light::getTriangles() {
 	return triangles;
 }
 
-bool Light::lightIntersection(Ray *ray, glm::vec3 *_p, std::vector<Triangle> _triangles){
+float Light::getArea(){
+	return this->area;
+}
+
+bool Light::lightIntersection(Ray *ray, glm::vec3 *_p){//, std::vector<Triangle> _triangles){
 	float distance = 100000000.0f;
 	bool isFound = false;
 	glm::vec3 tmpPt = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	// Check if light intersects with point
-	for (auto &triangle : _triangles) {
+	for (auto &triangle : this->triangles) {
 		// Check if the ray intersects the triangle
 		// If so, add the triangle to the returning vector
 		if (triangle.rayIntersection(ray, &tmpPt)) {

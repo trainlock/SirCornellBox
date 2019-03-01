@@ -74,7 +74,7 @@ void Camera::render(){
 			// Divide into subpixel for reflections
 			direction = glm::vec3(0.0f, ((1.0f - middle) - (float)(j)*delta), ((1.0f - middle) - (float)(i)*delta)) - ray.getStartPt();
 			ray.setDirRay(glm::normalize(direction));
-			color = castRay(&ray, 0, 1.0f);
+			color = castRay(&ray, 0, 1.0f) * 255;
 
 			pixels.push_back(Pixel(color, &ray));
 		}
@@ -83,7 +83,7 @@ void Camera::render(){
 
 ColorDbl Camera::castRay(Ray *ray, int depth, float importance) {
 	const float EPSILON = 0.1f;
-	const int MAX_DEPTH = 1; 
+	const int MAX_DEPTH = 0; 
 
 	float distIntersection = 0.0f;
 	float distLightIntersection = 0.0f;
@@ -92,7 +92,7 @@ ColorDbl Camera::castRay(Ray *ray, int depth, float importance) {
 	bool isTriangleClosest = true;
 
 	glm::vec3 intersectionPt = glm::vec3(0.0f);
-	glm::vec3 lightPt = scene->getLights().back().getPos();
+	//glm::vec3 lightPt = scene->getLights().back().getPos();
 	glm::vec3 closestPt = glm::vec3(0.0f);
 	glm::vec3 normal = glm::vec3(0.0f);
 	glm::vec3 localPt;
@@ -130,7 +130,7 @@ ColorDbl Camera::castRay(Ray *ray, int depth, float importance) {
 	}
 	// Get type and color of surface for closest point
 	type = mat.getType();
-	surfaceColor = mat.getColor();
+	//surfaceColor = mat.getColor();
 	//std::cout << "BEFORE: surfacecolor = " << surfaceColor  << "; closestPt = " << glm::to_string(closestPt) << std::endl;
 
 	// Find direction between start point and light point
@@ -143,10 +143,23 @@ ColorDbl Camera::castRay(Ray *ray, int depth, float importance) {
 	ray->setStartPt(closestPt);
 	ray->setDirRay(direction);
 
+	/*
+	glm::vec3 lightPt;
+	if (light.lightIntersection(ray, &lightPt)){//, light.getTriangles())) {
+		//float lengthToLight = glm::distance(lightPt, ray->getStartPt());
+		//if (lengthToLight < lengthToSphere || !closestSphere.isHit || closestSphere.isHit && lengthToSphere < 0.001f) {
+			//if (lengthToLight < lengthToTriangle || abs(lengthToLight - lengthToTriangle) < 0.0001f) {
+				return light.getEmission() * importance;
+			//}
+		//}
+	}
+	*/
+
+
 	// TODO: Fix so that the light source is visible
 	// Check if triangle is light
 	if (isTriangleClosest && type == LIGHT) {
-		std::cout << "light" << std::endl;
+		std::cout << "light, color = " << light.getEmission()*importance  << std::endl;
 		// Return light emission
 		return light.getEmission()*importance;
 	}
@@ -168,29 +181,39 @@ ColorDbl Camera::castRay(Ray *ray, int depth, float importance) {
 	// Check if a diffuse area is hit
 	if (type == LAMBERTIAN) {
 		// Get direct light
-		directLight = scene->ComputeDirectLight(closestPt);
+		directLight = scene->ComputeDirectLight(closestPt, normal);
 		
 		// Calculate indirect light with new direction of ray until depht is reached (recursive)
+		// Convert to local space
+		//localPt = scene->ConvertToLocal(ray, closestPt, normal);
 
-
-		// Calculate new direction of ray, Lambertian
-		glm::vec3 newPt = ray->calculateLambertian(closestPt);
-
-		// Convert to world space
+		//// Calculate new direction of ray, Lambertian
+		//glm::vec3 newPt = ray->calculateLambertian(localPt, normal);
+		//
+		//// Convert to world space
 		//worldPt = scene->ConvertToWorld(ray, newPt);
-		glm::vec3 newDir = newPt - closestPt;
+		//glm::vec3 newDir = worldPt - closestPt;
+		//ray->setDirRay(newDir);
+
+		glm::vec3 newDir = ray->calculateLambertian(closestPt, normal);
 		ray->setDirRay(newDir);
 
-		if (depth > 0) {
-			// Convert to local space
-			//localPt = scene->ConvertToLocal(ray, closestPt, normal);
-			return surfaceColor * importance;
+		ColorDbl emittance = mat.getColor() * (0.8 / M_PI);
+		surfaceColor += emittance;
+		surfaceColor *= directLight;
+
+		float newImportance = importance * 0.8f;
+		double p = std::max(std::max(emittance.r, emittance.g), emittance.b);
+		//double p = std::max(std::max(surfaceColor.r*0.8, surfaceColor.g*0.8), surfaceColor.b*0.8);
+		double random = (double)rand() / RAND_MAX;
+		if (depth < MAX_DEPTH || random < p) {
+			int newDepth = depth + 1;
+			// Summarise and return all lights
+			surfaceColor += (castRay(ray, newDepth, newImportance/M_PI));
 		}
-
-		int newDepth = depth + 1;
-		indirectLight = castRay(ray, newDepth, importance * 0.8f);
-
-		// Summarise and return all lights
-		return (directLight + indirectLight) * surfaceColor * importance;;
+		else {
+			//surfaceColor = surfaceColor * importance;
+		}
 	}
+	return surfaceColor * importance;
 }

@@ -8,6 +8,10 @@ ColorDbl::ColorDbl(double _r, double _g, double _b) {
 	this->r = _r, this->g = _g, this->b = _b;
 }
 
+ColorDbl::ColorDbl(double _d) {
+	this->r = _d, this->g = _d, this->b = _d;
+}
+
 ColorDbl::~ColorDbl(){}
 
 void ColorDbl::setColor(ColorDbl _color){
@@ -22,6 +26,11 @@ void ColorDbl::setColor(double _r, double _g, double _b){
 
 ColorDbl ColorDbl::getColor(){
 	return ColorDbl(this->r, this->g, this->b);
+}
+
+ColorDbl ColorDbl::operator=(const double f) {
+	this->r = f, this->g = f, this->b = f;
+	return *this;
 }
 
 ColorDbl ColorDbl::operator=(const float f) {
@@ -39,6 +48,16 @@ ColorDbl ColorDbl::operator*(const ColorDbl c){
 	return *this;
 }
 
+ColorDbl ColorDbl::operator*=(const ColorDbl c) {
+	this->r *= c.r, this->g *= c.g, this->b *= c.b;
+	return *this;
+}
+
+ColorDbl ColorDbl::operator+=(const float f) {
+	this->r += f, this->g += f, this->b += f;
+	return *this;
+}
+
 ColorDbl ColorDbl::operator+(const ColorDbl c) {
 	this->r + c.r, this->g + c.g, this->b + c.b;
 	return *this;
@@ -46,6 +65,11 @@ ColorDbl ColorDbl::operator+(const ColorDbl c) {
 
 ColorDbl ColorDbl::operator+=(const ColorDbl c) {
 	this->r += c.r, this->g += c.g, this->b += c.b;
+	return *this;
+}
+
+ColorDbl ColorDbl::operator/(const float f) {
+	this->r /= f, this->g /= f, this->b /= f;
 	return *this;
 }
 

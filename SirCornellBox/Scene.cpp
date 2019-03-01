@@ -11,7 +11,7 @@ Scene::~Scene(){}
 
 void Scene::initLights() {
 	// Assume white light!
-	lights.push_back(Light(glm::vec3(0, 2, 4.9f), 10000.0f));
+	lights.push_back(Light(glm::vec3(0, 2, 4.9f), 1000 / M_PI));
 }
 
 void Scene::initVertices(){
@@ -160,6 +160,13 @@ void Scene::initObjects() {
 	mat = Material(color, p, refIdx, LAMBERTIAN);
 	Sphere sphere = Sphere(glm::vec3(4, 2, -2), 0.5f, mat);
 	spheres.push_back(sphere);
+	/*
+	for (auto light : lights) {
+		for (auto t : light.getTriangles()) {
+			triangles.push_back(t);
+		}
+	}
+	*/
 }
 
 std::vector<Light> Scene::getLights() {
@@ -228,12 +235,13 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 	return closestSphere;
 }
 
-ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
+ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt, glm::vec3 normal) {
 	// Variables
 	const float EPSILON = 0.01f;
 
 	ColorDbl color, tmpColor;
 	glm::vec3 lightPt;
+	float lightArea = 0.0f;
 	float lengthToSphere = 0.0f, lengthToTriangle = 0.0f;
 	float closestDist = 100000.0f;
 	int lightSourcesHit = 0, lightPtsHit = 0;
@@ -246,7 +254,8 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 	// Loop through triangles in light
 	for (auto &light : lights) {
 		currentLightIsHit = false;
-		tmpColor = tmpColor * 0.0f;
+		//tmpColor = tmpColor * 0.0f;
+		lightArea = light.getArea();
 
 		// Loop through a set number of points on light area
 		for (auto &t : light.getTriangles()){
@@ -258,13 +267,12 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 				if (currentLightIsHit) {
 					break;
 				}
-
+				
 				// Get random point on within the light area
 				lightPt = t.getRandomPt();
 
 				// Update the endpoint for the ray
 				ray.setEndPt(lightPt);
-
 				float distToLight = glm::distance(surfacePt, lightPt);
 
 				// Calculate intersections
@@ -289,21 +297,29 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt) {
 				if (closestDist < distToLight && closestDist > EPSILON) {
 					continue;
 				}
+				// TODO:EZ-FIX
+				// Geometric term
+				float alpha = glm::dot(-normal, ray.getDirRay());
+				float beta = glm::clamp(glm::dot(t.getNormal(), -ray.getDirRay()), 0.0f, 255.0f);
+				float geometric = alpha * beta / pow(distToLight, 2);
+				lightSourcesHit++;
 
 				// Add light to contributed light
-				tmpColor += light.getEmission()*(1/pow(distToLight,2));
+				tmpColor += light.getEmission() * (1 / pow(distToLight, 2));
+				//tmpColor += t.getColor() * light.getEmission() * geometric;
 
 				currentLightIsHit = true;
 			}
+			//color += tmpColor;
 		}
 		if (currentLightIsHit) {
 			color += tmpColor;
 		}
 		else {
 			color = 0.0f;
-		}
+		}		
 	}
-	return color;
+	return color;// * lightArea / lightSourcesHit;
 }
 
 glm::vec3 Scene::ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 normal) {
@@ -314,7 +330,7 @@ glm::vec3 Scene::ConvertToLocal(Ray *ray, glm::vec3 intersectionPt, glm::vec3 no
 	X = glm::normalize(glm::perp(I, Z));
 	Y = glm::cross(-X, Z);
 	glm::mat4 rotationMatrix = glm::mat4(glm::vec4(X, 0), glm::vec4(Y, 0), glm::vec4(Z, 0), glm::vec4(0, 0, 0, 1));
-	glm::mat4 translationMatrix = glm::mat4(glm::vec4(1, 0, 0, 0), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec4(intersectionPt.x, intersectionPt.y, intersectionPt.z, 1));
+	glm::mat4 translationMatrix = glm::mat4(glm::vec4(1, 0, 0, 0), glm::vec4(0, 1, 0, 0), glm::vec4(0, 0, 1, 0), glm::vec4(-intersectionPt.x, -intersectionPt.y, -intersectionPt.z, 1));
 	glm::mat4 M = rotationMatrix * translationMatrix;
 
 	//glm::vec4 iPtT = glm::outerProduct(M, iPt);
