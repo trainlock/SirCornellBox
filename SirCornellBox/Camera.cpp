@@ -82,8 +82,8 @@ void Camera::render(){
 }
 
 ColorDbl Camera::castRay(Ray *ray, int depth, float importance) {
-	const float EPSILON = 0.1f;
-	const int MAX_DEPTH = 0; 
+	const float EPSILON = 0.00001f;
+	const int MAX_DEPTH = 1; 
 
 	float distIntersection = 0.0f;
 	float distLightIntersection = 0.0f;
@@ -159,9 +159,9 @@ ColorDbl Camera::castRay(Ray *ray, int depth, float importance) {
 	// TODO: Fix so that the light source is visible
 	// Check if triangle is light
 	if (isTriangleClosest && type == LIGHT) {
-		std::cout << "light, color = " << light.getEmission()*importance  << std::endl;
+		//std::cout << "light, color = " << light.getEmission()*importance  << std::endl;
 		// Return light emission
-		return light.getEmission()*importance;
+		return ColorDbl(1.0)*importance;
 	}
 
 	// Check material
@@ -199,21 +199,21 @@ ColorDbl Camera::castRay(Ray *ray, int depth, float importance) {
 		ray->setDirRay(newDir);
 
 		ColorDbl emittance = mat.getColor() * (0.8 / M_PI);
-		surfaceColor += emittance;
-		surfaceColor *= directLight;
+		surfaceColor = mat.getColor();
+		surfaceColor *= directLight * importance;
 
 		float newImportance = importance * 0.8f;
 		double p = std::max(std::max(emittance.r, emittance.g), emittance.b);
 		//double p = std::max(std::max(surfaceColor.r*0.8, surfaceColor.g*0.8), surfaceColor.b*0.8);
 		double random = (double)rand() / RAND_MAX;
-		if (depth < MAX_DEPTH || random < p) {
+		if (depth <= MAX_DEPTH || random < p) {
 			int newDepth = depth + 1;
 			// Summarise and return all lights
-			surfaceColor += (castRay(ray, newDepth, newImportance/M_PI));
+			surfaceColor += (castRay(ray, newDepth, newImportance)) * importance;
 		}
 		else {
-			//surfaceColor = surfaceColor * importance;
+			surfaceColor = surfaceColor * importance;
 		}
 	}
-	return surfaceColor * importance;
+	return surfaceColor;
 }

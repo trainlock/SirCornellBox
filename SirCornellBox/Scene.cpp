@@ -11,7 +11,7 @@ Scene::~Scene(){}
 
 void Scene::initLights() {
 	// Assume white light!
-	lights.push_back(Light(glm::vec3(0, 2, 4.9f), 1000 / M_PI));
+	lights.push_back(Light(glm::vec3(5, 2, 4.9f), 1000 / M_PI));
 }
 
 void Scene::initVertices(){
@@ -160,13 +160,13 @@ void Scene::initObjects() {
 	mat = Material(color, p, refIdx, LAMBERTIAN);
 	Sphere sphere = Sphere(glm::vec3(4, 2, -2), 0.5f, mat);
 	spheres.push_back(sphere);
-	/*
+	
 	for (auto light : lights) {
 		for (auto t : light.getTriangles()) {
 			triangles.push_back(t);
 		}
 	}
-	*/
+	
 }
 
 std::vector<Light> Scene::getLights() {
@@ -237,7 +237,7 @@ SphereIntersection Scene::detectSphere(Ray *ray) {
 
 ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt, glm::vec3 normal) {
 	// Variables
-	const float EPSILON = 0.01f;
+	const float EPSILON = 0.000001f;
 
 	ColorDbl color, tmpColor;
 	glm::vec3 lightPt;
@@ -247,6 +247,8 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt, glm::vec3 normal) {
 	int lightSourcesHit = 0, lightPtsHit = 0;
 	int nrOfPt = 3;
 	bool currentLightIsHit = false;
+
+	float sum = 0.0f;
 
 	// Create new ray
 	Ray ray(surfacePt);
@@ -260,12 +262,12 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt, glm::vec3 normal) {
 		// Loop through a set number of points on light area
 		for (auto &t : light.getTriangles()){
 			if (currentLightIsHit) {
-				break;
+				//break;
 			}
 
 			for (int i = 0; i < nrOfPt; i++) {
 				if (currentLightIsHit) {
-					break;
+					//break;
 				}
 				
 				// Get random point on within the light area
@@ -299,21 +301,30 @@ ColorDbl Scene::ComputeDirectLight(glm::vec3 surfacePt, glm::vec3 normal) {
 				}
 				// TODO:EZ-FIX
 				// Geometric term
-				float alpha = glm::dot(-normal, ray.getDirRay());
-				float beta = glm::clamp(glm::dot(t.getNormal(), -ray.getDirRay()), 0.0f, 255.0f);
-				float geometric = alpha * beta / pow(distToLight, 2);
+				glm::vec3 rayDir = ray.getEndPt() - ray.getStartPt();
+				glm::normalize(rayDir);
+				float rayLength = std::max(1.0f, glm::dot(rayDir, rayDir));
+
+				// float alpha = glm::dot(-normal, ray.getDirRay());
+				//float beta = glm::clamp(glm::dot(t.getNormal(), -ray.getDirRay()), 0.0f, 255.0f);
+				//float geometric = alpha * beta / pow(distToLight, 2);
+				float alpha = std::max(0.0f, glm::dot(rayDir, normal));
+				float beta = std::max(0.0f, glm::dot(-rayDir, t.getNormal()));
+				float geometric = alpha * beta / rayLength;//pow(distToLight, 2);
+
 				lightSourcesHit++;
-
+				
+				//std::cout << geometric << std::endl;
 				// Add light to contributed light
-				tmpColor += light.getEmission() * (1 / pow(distToLight, 2));
+				tmpColor += light.getEmission() * geometric;//(1 / pow(distToLight, 2));
 				//tmpColor += t.getColor() * light.getEmission() * geometric;
-
+				//sum += geometric;
 				currentLightIsHit = true;
 			}
 			//color += tmpColor;
 		}
 		if (currentLightIsHit) {
-			color += tmpColor;
+			color += tmpColor; // (light.getEmission()*light.getArea())*sum * 10 / lightSourcesHit;
 		}
 		else {
 			color = 0.0f;

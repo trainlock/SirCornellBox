@@ -20,8 +20,8 @@ Light::Light(glm::vec3 _pos, float _intensity){
 	float p = 0.0f;
 	float refIdx = 0.0f;
 	Material mat = Material(color, p, refIdx, LIGHT, _intensity);
-	triangles.push_back(Triangle(v0, v1, v2, mat, "light_t0"));
-	triangles.push_back(Triangle(v0, v2, v3, mat, "light_t1"));
+	triangles.push_back(Triangle(v0, v2, v1, mat, "light_t0"));
+	triangles.push_back(Triangle(v0, v3, v2, mat, "light_t1"));
 
 	area = heightHalf * widthHalf * 2.0f;
 }

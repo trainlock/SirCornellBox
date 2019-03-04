@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <stdlib.h>
 #include "Triangle.h"
 #include "Light.h"
 #include "Tetrahedron.h"
